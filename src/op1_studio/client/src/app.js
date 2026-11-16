@@ -385,21 +385,92 @@ function renderDevice(s) {
   }
   const rows = [];
   rows.push(`<p class="path">${escapeHtml(s.path)}</p>`);
-  rows.push(listBlock('synth', s.synth));
-  rows.push(listBlock('drum', s.drum));
-  const tape = s.tape_tracks
-    .map((t) => `<li>${escapeHtml(t.name)} <span class="dim">${fmtBytes(t.bytes)}</span></li>`)
-    .join('');
-  rows.push(`<h3>Tape</h3><ul class="plain">${tape || '<li class="dim">empty</li>'}</ul>`);
+  rows.push(listBlock('synth', s.synth || []));
+  rows.push(listBlock('drum', s.drum || []));
+  rows.push(listBlock('tape', s.tape_tracks || []));
+  rows.push(listBlock('album', s.album || []));
   devicePane.innerHTML = rows.join('');
+  for (const btn of devicePane.querySelectorAll('[data-clip]')) {
+    btn.addEventListener('click', () => toggleClip(btn.dataset.clip));
+  }
+  syncClipRows();
 }
 
 function listBlock(title, items) {
   const body = items.length
-    ? items.map((i) => `<li>${escapeHtml(i)}</li>`).join('')
+    ? items.map(clipRow).join('')
     : '<li class="dim">empty</li>';
   return `<h3>${title} <span class="dim">${items.length}</span></h3><ul class="plain">${body}</ul>`;
 }
+
+function clipRow(entry) {
+  const rel = entry.rel || '';
+  const name = entry.name || rel;
+  return `<li class="clip"><button class="clip-btn" data-clip="${escapeHtml(rel)}"
+      title="play ${escapeHtml(name)}">
+      <span class="clip-icon">▶</span>
+      <span class="clip-name">${escapeHtml(name)}</span>
+    </button><span class="dim">${fmtBytes(entry.bytes)}</span></li>`;
+}
+
+// ---------------------------------------------------------------- clips
+// One element for the whole page: clicking a second clip stops the first, and
+// the converted WAV is streamed from the proxy, which is the only party that
+// can read an AIFF (Chromium has no AIFF decoder at all).
+const clip = new Audio();
+clip.preload = 'metadata';
+let clipRel = '';
+
+function toggleClip(rel) {
+  if (!rel) return;
+  if (clipRel === rel && !clip.paused) {
+    clip.pause();
+    return;
+  }
+  if (clipRel !== rel || !clip.src) {
+    clipRel = rel;
+    clip.src = api.audioUrl(rel);
+  }
+  clip.play().catch((err) => {
+    setMessage(`cannot play ${rel.split('/').pop()}: ${err.message}`);
+    syncClipRows();
+  });
+}
+
+function syncClipRows() {
+  for (const btn of devicePane.querySelectorAll('[data-clip]')) {
+    const active = btn.dataset.clip === clipRel;
+    const playing = active && !clip.paused && !clip.ended;
+    btn.classList.toggle('playing', playing);
+    btn.classList.toggle('paused', active && !playing);
+    const icon = btn.querySelector('.clip-icon');
+    if (icon) icon.textContent = playing ? '❚❚' : '▶';
+  }
+}
+
+clip.addEventListener('play', syncClipRows);
+clip.addEventListener('pause', syncClipRows);
+clip.addEventListener('ended', syncClipRows);
+clip.addEventListener('error', async () => {
+  // The element only says "error"; ask the proxy for the sentence it wrote.
+  // A one-byte range keeps this cheap even for a 60 MB album side.
+  const rel = clipRel;
+  if (!rel) return;
+  let why = 'the proxy could not serve this clip';
+  try {
+    const res = await fetch(api.audioUrl(rel), { headers: { Range: 'bytes=0-0' } });
+    const text = await res.text();
+    try {
+      why = JSON.parse(text).error || why;
+    } catch {
+      /* not JSON: leave the generic sentence */
+    }
+  } catch {
+    /* the proxy is unreachable: the generic sentence is all we have */
+  }
+  setMessage(why.slice(0, 120));
+  syncClipRows();
+});
 
 const escapeHtml = (s) =>
   String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -658,4 +729,7 @@ loadBrowse(1);
 frame();
 
 // expose for the browser console and for e2e checks
-window.op1studio = { state, api, scene, camera, controls, renderer, op1, enterMode, restartBridge };
+window.op1studio = {
+  state, api, scene, camera, controls, renderer, op1, enterMode, restartBridge,
+  clip, toggleClip,
+};

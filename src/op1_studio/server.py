@@ -9,6 +9,7 @@ Standard library only, same as the quneo editor twin.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import mimetypes
 import os
@@ -22,7 +23,7 @@ from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from . import device, library, op1fun
+from . import aiff, device, library, op1fun
 from .config import StudioConfig
 
 CLIENT_DIR = Path(__file__).parent / "client"
@@ -38,6 +39,38 @@ STARTED_AT = time.monotonic()
 # (Detecting systemd from INVOCATION_ID is not an option: every child of a
 # systemd-managed session inherits it, so a bare shell looks supervised too.)
 RESTART_DELAY = 0.4        # seconds between the response and the reload
+
+# Streaming block for audio responses: big enough to keep syscalls cheap,
+# small enough that a long album side does not balloon memory.
+AUDIO_BLOCK = 256 * 1024
+
+
+def parse_range(header: str, size: int) -> tuple[int, int] | None:
+    """Parse one ``bytes=`` range, or None when it cannot be satisfied.
+
+    Only the first range is honoured: a browser asks for one range at a time,
+    and multipart responses would be more machinery than this needs.
+    """
+    if size <= 0 or not header.startswith("bytes="):
+        return None
+    spec = header[6:].split(",")[0].strip()
+    if "-" not in spec:
+        return None
+    first, last = spec.split("-", 1)
+    try:
+        if first == "":
+            want = int(last)
+            if want <= 0:
+                return None
+            start, end = max(0, size - want), size - 1
+        else:
+            start = int(first)
+            end = int(last) if last else size - 1
+    except ValueError:
+        return None
+    if start < 0 or start >= size or end < start:
+        return None
+    return start, min(end, size - 1)
 
 
 def restart_argv() -> list[str]:
@@ -172,6 +205,42 @@ class StudioApp:
     def eject(self) -> dict:
         return device.eject(self.config.mount)
 
+    # --- audio ----------------------------------------------------------
+    def audio_path(self, rel: str) -> Path:
+        """Return a cached WAV for one clip on the device.
+
+        The conversion happens once per (path, size, mtime) and lands in the
+        data dir. Nothing is written to the OP-1, and nothing outside the mount
+        can be read: ``resolve`` plus a containment check is what stops
+        ``rel=../../etc/passwd`` from turning into a file read.
+        """
+        if not rel:
+            raise ValueError("rel is required")
+        mount = device.find_mount(self.config.mount)
+        if mount is None:
+            raise device.DeviceError("OP-1 is not mounted in disk mode")
+
+        root = mount.resolve()
+        target = (root / rel).resolve()
+        if target == root or root not in target.parents:
+            raise device.DeviceError(f"refusing to read outside the OP-1 volume: {rel}")
+        if target.suffix.lower() not in {".aif", ".aiff"}:
+            raise device.DeviceError(f"not an AIFF clip: {target.name}")
+        if not target.is_file():
+            raise FileNotFoundError(f"no such clip on the device: {rel}")
+
+        st = target.stat()
+        key = hashlib.sha1(
+            f"{rel}|{st.st_size}|{st.st_mtime_ns}".encode("utf-8")
+        ).hexdigest()[:16]
+        out = self.config.cache_dir / "audio" / f"{target.stem}-{key}.wav"
+        if not out.exists():
+            out.parent.mkdir(parents=True, exist_ok=True)
+            partial = out.with_name(f"{out.name}.{os.getpid()}.part")
+            aiff.write_wav(target, partial)
+            partial.replace(out)
+        return out
+
 
 class Handler(SimpleHTTPRequestHandler):
     app: StudioApp
@@ -192,6 +261,47 @@ class Handler(SimpleHTTPRequestHandler):
 
     def _error(self, message: str, status: int = 500) -> None:
         self._json({"error": message}, status)
+
+    def _send_audio(self, path: Path) -> None:
+        """Serve a WAV with Range support so the player can seek.
+
+        The cache file is keyed by the source's size and mtime, so a re-recorded
+        tape track gets a new file; tell the browser not to hold onto bytes.
+        """
+        size = path.stat().st_size
+        header = self.headers.get("Range")
+        partial = False
+        start, end = 0, size - 1
+        if header:
+            parsed = parse_range(header, size)
+            if parsed is None:
+                self.send_response(HTTPStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
+                self.send_header("Content-Range", f"bytes */{size}")
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return
+            start, end = parsed
+            partial = True
+
+        length = end - start + 1
+        self.send_response(HTTPStatus.PARTIAL_CONTENT if partial else HTTPStatus.OK)
+        self.send_header("Content-Type", "audio/wav")
+        self.send_header("Accept-Ranges", "bytes")
+        self.send_header("Content-Length", str(length))
+        self.send_header("Cache-Control", "no-store")
+        if partial:
+            self.send_header("Content-Range", f"bytes {start}-{end}/{size}")
+        self.end_headers()
+
+        with path.open("rb") as fh:
+            fh.seek(start)
+            remaining = length
+            while remaining > 0:
+                chunk = fh.read(min(AUDIO_BLOCK, remaining))
+                if not chunk:
+                    break
+                remaining -= len(chunk)
+                self.wfile.write(chunk)
 
     def log_message(self, format: str, *args) -> None:  # noqa: A002
         print(f"[op1-studio] {format % args}")
@@ -238,6 +348,14 @@ class Handler(SimpleHTTPRequestHandler):
                 return self._json(self.app.status())
             if path == "/api/library":
                 return self._json(self.app.library())
+            if path == "/api/audio":
+                rel = qs.get("rel", [""])[0]
+                try:
+                    return self._send_audio(self.app.audio_path(rel))
+                except FileNotFoundError as exc:
+                    return self._error(str(exc), HTTPStatus.NOT_FOUND)
+                except (aiff.AudioError, device.DeviceError, ValueError) as exc:
+                    return self._error(str(exc), HTTPStatus.BAD_REQUEST)
             if path == "/api/op1fun/patches":
                 page = int(qs.get("page", ["1"])[0])
                 query = qs.get("q", [""])[0]

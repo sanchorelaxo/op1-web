@@ -43,12 +43,37 @@ the panel works; only the install endpoints report no device.
   file or supervisor is needed. The client waits for `/api/health` to report a
   fresh uptime and then refreshes the device status.
 - `window.op1studio` exposes `{ state, api, scene, camera, controls, renderer,
-  op1, enterMode, restartBridge }` for scripting and comparison shots.
+  op1, enterMode, restartBridge, clip, toggleClip }` for scripting and
+  comparison shots.
 
-Routes: `/api/health`, `/api/restart`, `/api/status`, `/api/library`,
-`/api/op1fun/patches`, `/api/op1fun/pack`, `/api/upload`,
+Routes: `/api/health`, `/api/restart`, `/api/status`, `/api/audio`,
+`/api/library`, `/api/op1fun/patches`, `/api/op1fun/pack`, `/api/upload`,
 `/api/op1fun/install`, `/api/pack/install`, `/api/install/local`,
 `/api/tape/install`, `/api/eject`.
+
+## Playing sounds
+
+Click a clip under the Device tab and it plays in the browser. Chromium has no
+AIFF decoder, so the proxy converts on the way out:
+`GET /api/audio?rel=drum/user/1.aif` returns WAV, converted in pure Python from
+the file's own `COMM` chunk (rate and channels preserved, 8/24/32-bit narrowed
+to 16-bit, compressed AIFC refused). One WAV per source `(path, size, mtime)` is
+cached in the data dir; nothing is written to the OP-1. Range requests are
+honoured, so a 30 MB tape track starts playing before it finishes converting.
+
+The payload is byte-identical to `ffmpeg`'s decode of the same `.aif`, so what
+you hear is the file, not the proxy.
+
+Two things worth knowing before you judge a clip by ear:
+
+- **A drum kit is a container, not a one-shot.** Up to 24 slices sit end to end
+  with a pad map in `APPL`. The button plays the whole file, so a 1.31 s kit is
+  every pad crammed into one burst. The OP-1 plays one pad per key; slice
+  playback is not implemented yet.
+- **Kits differ in rate and in what they contain.** Tape and synth files are
+  44.1 kHz; the three 58 kB drum kits are 22.05 kHz `dbox` engines whose audio
+  really is a robotic voice, and the three of them are the same audio saved
+  under different names.
 
 ## Panel truth
 

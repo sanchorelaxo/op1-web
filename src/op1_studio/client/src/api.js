@@ -24,6 +24,7 @@ export const api = {
   health: () => request('/api/health'),
   restart: () => post('/api/restart'),
   status: () => request('/api/status'),
+  audioUrl: (rel) => `/api/audio?rel=${encodeURIComponent(rel)}`,
   library: () => request('/api/library'),
   patches: ({ page = 1, q = '', kind = '' } = {}) =>
     request(

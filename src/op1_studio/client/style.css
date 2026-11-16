@@ -342,6 +342,53 @@ ul.plain li {
   white-space: nowrap;
 }
 
+/* Clip rows: the whole name is the button, so the hit target is the row. */
+li.clip {
+  padding: 0;
+  align-items: center;
+}
+
+.clip-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 5px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.clip-btn:hover .clip-name {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.clip-icon {
+  width: 10px;
+  font-size: 9px;
+  color: var(--dim);
+}
+
+.clip-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clip-btn.playing .clip-icon,
+.clip-btn.playing .clip-name {
+  color: var(--accent, #7fd1ff);
+}
+
+.clip-btn.paused .clip-icon {
+  color: var(--dim);
+}
+
 .path {
   font-family: ui-monospace, monospace;
   font-size: 11px;

@@ -24,7 +24,8 @@ def test_status_lists_user_bank_files_and_tape_tracks(mount):
     d = s.to_dict()
     assert d["mounted"] is True
     assert d["label"] == "54FF-1FEE"
-    assert "user/1.aif" in d["synth"]
+    assert "user/1.aif" in [c["name"] for c in d["synth"]]
+    assert all(c["rel"].startswith("synth/") for c in d["synth"])
     assert {t["name"] for t in d["tape_tracks"]} == {
         "track_1.aif",
         "track_2.aif",

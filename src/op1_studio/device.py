@@ -44,8 +44,8 @@ class DeviceStatus:
     label: str | None
     free_bytes: int
     total_bytes: int
-    synth: list[str]
-    drum: list[str]
+    synth: list[dict]
+    drum: list[dict]
     tape_tracks: list[dict]
     album: list[dict]
     guidance: str
@@ -93,22 +93,27 @@ def find_mount(explicit: Path | None = None) -> Path | None:
     return None
 
 
-def _aif_files(folder: Path) -> list[str]:
+def _aif_entries(folder: Path, prefix: str) -> list[dict]:
+    """Playable clips in one bank, each with the path the audio route needs."""
     if not folder.is_dir():
         return []
-    return sorted(
-        str(p.relative_to(folder))
-        for p in folder.rglob("*")
+    return [
+        {
+            "name": str(p.relative_to(folder)),
+            "rel": f"{prefix}/{p.relative_to(folder).as_posix()}",
+            "bytes": p.stat().st_size,
+        }
+        for p in sorted(folder.rglob("*"))
         if p.is_file() and p.suffix.lower() in {".aif", ".aiff"}
-    )
+    ]
 
 
-def _track_info(path: Path) -> dict:
+def _track_info(path: Path, rel: str) -> dict:
     try:
         st = path.stat()
-        return {"name": path.name, "bytes": st.st_size, "mtime": int(st.st_mtime)}
+        return {"name": path.name, "rel": rel, "bytes": st.st_size, "mtime": int(st.st_mtime)}
     except OSError:
-        return {"name": path.name, "bytes": 0, "mtime": 0}
+        return {"name": path.name, "rel": rel, "bytes": 0, "mtime": 0}
 
 
 GUIDANCE_MOUNTED = (
@@ -147,10 +152,14 @@ def status(explicit: Path | None = None) -> DeviceStatus:
         label=mount.name,
         free_bytes=usage.free,
         total_bytes=usage.total,
-        synth=_aif_files(mount / "synth"),
-        drum=_aif_files(mount / "drum"),
-        tape_tracks=[_track_info(tape_dir / t) for t in TAPE_TRACKS if (tape_dir / t).exists()],
-        album=[_track_info(album_dir / s) for s in ALBUM_SIDES if (album_dir / s).exists()],
+        synth=_aif_entries(mount / "synth", "synth"),
+        drum=_aif_entries(mount / "drum", "drum"),
+        tape_tracks=[
+            _track_info(tape_dir / t, f"tape/{t}") for t in TAPE_TRACKS if (tape_dir / t).exists()
+        ],
+        album=[
+            _track_info(album_dir / s, f"album/{s}") for s in ALBUM_SIDES if (album_dir / s).exists()
+        ],
         guidance=GUIDANCE_MOUNTED,
     )
 
