@@ -164,11 +164,40 @@ def status(explicit: Path | None = None) -> DeviceStatus:
     )
 
 
-def _contained(mount: Path, target: Path) -> None:
+def _contained(mount: Path, target: Path, action: str = "write") -> None:
     """Reject anything that would land outside the OP-1 volume."""
     resolved = target.resolve()
     if mount.resolve() not in resolved.parents:
-        raise DeviceError(f"refusing to write outside the OP-1 volume: {target}")
+        raise DeviceError(f"refusing to {action} outside the OP-1 volume: {target}")
+
+
+def delete_file(mount: Path | None, rel: str) -> dict:
+    """Delete one user file from the device by its device-relative path.
+
+    Narrow on purpose: ``rel`` must be relative, must resolve inside the mounted
+    volume, and must point at a regular file. A directory or a path that climbs
+    out with ``..`` is refused before anything touches the disk.
+    """
+    target = find_mount(mount)
+    if target is None:
+        raise DeviceError("OP-1 is not mounted in disk mode")
+
+    raw = (rel or "").strip()
+    if not raw:
+        raise DeviceError("rel is required: the file's path on the device")
+    if Path(raw).is_absolute():
+        raise DeviceError(f"refusing to delete an absolute path: {raw}")
+
+    path = target / raw
+    _contained(target, path, "delete")
+    if not path.exists():
+        raise DeviceError(f"not found on the OP-1: {rel}")
+    if not path.is_file():
+        raise DeviceError(f"not a file: {rel}")
+
+    size = path.stat().st_size
+    path.unlink()
+    return {"rel": rel, "deleted": True, "bytes": size}
 
 
 def _safe_name(name: str) -> str:
@@ -230,6 +259,60 @@ def install_patch(
     folder.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src, dest)
     return {"installed": dest.name, "category": category, "bytes": size, "path": str(dest)}
+
+
+def write_drum_kit(
+    mount: Path | None,
+    name: str,
+    payload: bytes,
+    *,
+    force: bool = False,
+) -> dict:
+    """Write one generated kit into ``drum/user/`` and report where it landed.
+
+    The OP-1 only lists files inside ``drum/user``, and it numbers them by slot,
+    so a second kit with the same name is a separate slot rather than a
+    replacement: the first upload keeps its bytes unless ``force`` is set.
+    """
+    target = find_mount(mount)
+    if target is None:
+        raise DeviceError("OP-1 is not mounted in disk mode")
+
+    folder = target / "drum" / "user"
+    folder.mkdir(parents=True, exist_ok=True)
+    dest = folder / _safe_name(name)
+    _contained(target, dest)
+
+    if dest.exists() and not force:
+        stem, suffix = dest.stem, dest.suffix
+        for n in range(2, 100):
+            candidate = folder / f"{stem}-{n}{suffix}"
+            _contained(target, candidate)
+            if not candidate.exists():
+                dest = candidate
+                break
+        else:
+            raise DeviceError(f"too many kits named {stem} on the OP-1")
+
+    usage = shutil.disk_usage(target)
+    if usage.free < len(payload) + MIN_FREE_BYTES:
+        raise DeviceError(
+            f"not enough space on the OP-1: need {len(payload)} bytes, "
+            f"{usage.free} free"
+        )
+
+    # Write beside the target, then rename: a half-written .aif in the folder
+    # would show up as a broken kit in the device's list.
+    staging = folder / f".{dest.name}.part"
+    staging.write_bytes(payload)
+    staging.replace(dest)
+    return {
+        "saved": dest.name,
+        "rel": f"drum/user/{dest.name}",
+        "category": "drum",
+        "bytes": len(payload),
+        "path": str(dest),
+    }
 
 
 def install_tape(

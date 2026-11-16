@@ -340,6 +340,67 @@ const statusPill = el('device-status');
 const browseGrid = el('browse-grid');
 const browseMeta = el('browse-meta');
 const devicePane = el('device-pane');
+const deviceSection = document.querySelector('[data-pane="device"]');
+
+// Anything the proxy can decode with ffmpeg goes straight to drum/user: the
+// guide wants one sound, twelve seconds, and the device files it as a kit.
+const AUDIO_EXTENSIONS = /^(wav|wave|mp3|m4a|aac|flac|ogg|oga|opus|aif|aiff|aifc|wma|webm|mp4|caf|au|aiff)$/i;
+
+function looksLikeAudio(file) {
+  if ((file.type || '').startsWith('audio/')) return true;
+  return AUDIO_EXTENSIONS.test((file.name.split('.').pop() || '').trim());
+}
+
+async function dropDrumFile(file) {
+  if (!looksLikeAudio(file)) {
+    setMessage(`cannot read ${file.name}: drop an audio file (wav, mp3, flac, ogg…)`);
+    return;
+  }
+  setBusy(true);
+  setMessage(`uploading ${file.name}…`);
+  try {
+    const res = await api.uploadDrum(file.name, file);
+    setMessage(`${res.saved} → drum/user (${res.seconds.toFixed(2)} s) — ready to play`);
+    await refreshStatus();
+    const btn = devicePane.querySelector(`[data-clip="${CSS.escape(res.rel)}"]`);
+    if (btn) btn.scrollIntoView({ block: 'nearest' });
+  } catch (err) {
+    setMessage(`${file.name}: ${err.message}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function wireDrumDrop() {
+  if (!deviceSection) return;
+  const stop = (ev) => { ev.preventDefault(); ev.stopPropagation(); };
+  deviceSection.addEventListener('dragenter', (ev) => {
+    if (![...(ev.dataTransfer?.types || [])].includes('Files')) return;
+    stop(ev);
+    deviceSection.dataset.dropping = 'true';
+  });
+  deviceSection.addEventListener('dragover', (ev) => {
+    if (![...(ev.dataTransfer?.types || [])].includes('Files')) return;
+    stop(ev);
+    ev.dataTransfer.dropEffect = 'copy';
+  });
+  deviceSection.addEventListener('dragleave', (ev) => {
+    if (deviceSection.contains(ev.relatedTarget)) return;
+    delete deviceSection.dataset.dropping;
+  });
+  deviceSection.addEventListener('drop', (ev) => {
+    stop(ev);
+    delete deviceSection.dataset.dropping;
+    const files = [...(ev.dataTransfer?.files || [])];
+    if (files.length !== 1) {
+      setMessage('drop one sound at a time: one file becomes one kit');
+      return;
+    }
+    dropDrumFile(files[0]);
+  });
+}
+
+wireDrumDrop();
 const tapesPane = el('tapes-pane');
 
 let browsePage = 1;
@@ -379,6 +440,11 @@ function fmtBytes(n) {
 
 function renderDevice(s) {
   devicePane.innerHTML = '';
+  devicePane.insertAdjacentHTML(
+    'afterbegin',
+    '<p class="dropzone">drop one sound here — wav, mp3, flac… up to 12 s<br>'
+      + '<span class="dim">it lands in drum/user as a kit</span></p>',
+  );
   if (!s || !s.mounted) {
     devicePane.innerHTML = `<p class="empty">${escapeHtml(s?.guidance || 'No device.')}</p>`;
     return;
@@ -389,9 +455,15 @@ function renderDevice(s) {
   rows.push(listBlock('drum', s.drum || []));
   rows.push(listBlock('tape', s.tape_tracks || []));
   rows.push(listBlock('album', s.album || []));
-  devicePane.innerHTML = rows.join('');
+  devicePane.insertAdjacentHTML('beforeend', rows.join(''));
   for (const btn of devicePane.querySelectorAll('[data-clip]')) {
     btn.addEventListener('click', () => toggleClip(btn.dataset.clip));
+  }
+  for (const btn of devicePane.querySelectorAll('[data-del]')) {
+    btn.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      deleteEntry(btn.dataset.del);
+    });
   }
   syncClipRows();
 }
@@ -410,7 +482,32 @@ function clipRow(entry) {
       title="play ${escapeHtml(name)}">
       <span class="clip-icon">▶</span>
       <span class="clip-name">${escapeHtml(name)}</span>
-    </button><span class="dim">${fmtBytes(entry.bytes)}</span></li>`;
+    </button><span class="dim">${fmtBytes(entry.bytes)}</span>
+    <button class="clip-del" data-del="${escapeHtml(rel)}"
+      title="delete ${escapeHtml(name)} from the OP-1" aria-label="delete ${escapeHtml(name)}">×</button></li>`;
+}
+
+async function deleteEntry(rel) {
+  const name = rel.split('/').pop();
+  if (!window.confirm(`Delete ${name} from the OP-1?\n\nThis removes the file from the device.`)) {
+    return;
+  }
+  setBusy(true);
+  setMessage(`deleting ${name}…`);
+  try {
+    await api.deleteEntry(rel);
+    if (clipRel === rel) {
+      clip.pause();
+      clip.removeAttribute('src');
+      clipRel = '';
+    }
+    setMessage(`${name} deleted`);
+  } catch (err) {
+    setMessage(`cannot delete ${name}: ${err.message}`);
+  } finally {
+    setBusy(false);
+    await refreshStatus();
+  }
 }
 
 // ---------------------------------------------------------------- clips
@@ -731,5 +828,5 @@ frame();
 // expose for the browser console and for e2e checks
 window.op1studio = {
   state, api, scene, camera, controls, renderer, op1, enterMode, restartBridge,
-  clip, toggleClip,
+  clip, toggleClip, deleteEntry,
 };

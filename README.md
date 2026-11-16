@@ -42,14 +42,35 @@ the panel works; only the install endpoints report no device.
   (`execve`, same port, same PID, about half a second of downtime). No unit
   file or supervisor is needed. The client waits for `/api/health` to report a
   fresh uptime and then refreshes the device status.
+- **Drop a sound on the Device pane** and it becomes a drum kit in
+  `drum/user/`. Any format the proxy can decode goes in (wav, mp3, m4a, flac,
+  ogg, aif…); it is downmixed to mono 44.1 kHz, refused above 12 seconds, and
+  written as an AIFC the OP-1 lists. The pane refreshes itself, so the new kit
+  is one click away from playing.
+- **x beside any device entry deletes that file** from the OP-1, after a
+  confirm. The path must resolve inside the mounted volume; directories and
+  `..` are refused.
 - `window.op1studio` exposes `{ state, api, scene, camera, controls, renderer,
-  op1, enterMode, restartBridge, clip, toggleClip }` for scripting and
-  comparison shots.
+  op1, enterMode, restartBridge, clip, toggleClip, deleteEntry }` for scripting
+  and comparison shots.
 
 Routes: `/api/health`, `/api/restart`, `/api/status`, `/api/audio`,
 `/api/library`, `/api/op1fun/patches`, `/api/op1fun/pack`, `/api/upload`,
-`/api/op1fun/install`, `/api/pack/install`, `/api/install/local`,
-`/api/tape/install`, `/api/eject`.
+`/api/drum/upload`, `/api/device/delete`, `/api/op1fun/install`,
+`/api/pack/install`, `/api/install/local`, `/api/tape/install`, `/api/eject`.
+
+## Making a drum kit
+
+The teenage engineering guide asks for one sound file, twelve seconds at most,
+saved as `.aif` into the user folder inside the drum folder. Dropping a file on
+the Device pane does that: `POST /api/drum/upload?name=<file>` decodes it,
+takes it to mono 44.1 kHz, and writes `drum/user/<name>.aif`.
+
+The container is AIFC (`FORM`/`AIFF`, `FVER`, `COMM` with `sowt`, `APPL`,
+`SSND`) and the kit's 24 pads all start at 0 and end at the file's end, so any
+key plays the whole sound. Slice values are fractions of a 24 second timeline,
+not frame counts: twelve seconds is exactly `2**31`. A kit built here parses
+with the same `COMM`/`APPL` shape the OP-1's own `bronze` kit uses.
 
 ## Playing sounds
 
@@ -85,7 +106,7 @@ mesh code follows it.
 ## Tests
 
 ```sh
-.venv/bin/python -m pytest -q     # 69 passed
+.venv/bin/python -m pytest -q     # 101 passed
 ```
 
 `tests/test_pdf_manual.py` needs the `dev` extra (`pip install -e ".[dev]"`,

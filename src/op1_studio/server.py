@@ -23,7 +23,7 @@ from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from . import aiff, device, library, op1fun
+from . import aiff, device, drumkit, library, op1fun
 from .config import StudioConfig
 
 CLIENT_DIR = Path(__file__).parent / "client"
@@ -43,6 +43,8 @@ RESTART_DELAY = 0.4        # seconds between the response and the reload
 # Streaming block for audio responses: big enough to keep syscalls cheap,
 # small enough that a long album side does not balloon memory.
 AUDIO_BLOCK = 256 * 1024
+# A twelve second mono WAV is ~1 MB; anything far larger is not a drum sample.
+MAX_DRUM_UPLOAD = 32 * 1024 * 1024
 
 
 def parse_range(header: str, size: int) -> tuple[int, int] | None:
@@ -201,6 +203,28 @@ class StudioApp:
             raise ValueError("uploads go to patches/ or samples/")
         dest = library.save_upload(self.config.library_dir, folder, name, data)
         return {"saved": str(dest), "bytes": len(data)}
+
+    def upload_drum(self, name: str, data: bytes) -> dict:
+        """Turn a dropped WAV into a kit in ``drum/user/`` on the device."""
+        if not data:
+            raise ValueError("the upload is empty")
+        if len(data) > MAX_DRUM_UPLOAD:
+            raise ValueError(
+                f"the upload is {len(data)} bytes; a twelve second WAV is about 2 MB"
+            )
+        prepared = drumkit.prepare(data, Path(Path(name).name or "upload.wav").name)
+        payload = drumkit.build_kit(
+            prepared["name"], prepared["pcm"], prepared["frames"]
+        )
+        stem = Path(Path(name).name).stem or "kit"
+        result = device.write_drum_kit(self.config.mount, stem, payload)
+        result["seconds"] = prepared["seconds"]
+        result["frames"] = prepared["frames"]
+        return result
+
+    def delete_entry(self, rel: str) -> dict:
+        """Remove one file from the device; the pane's x calls this."""
+        return device.delete_file(self.config.mount, rel)
 
     def eject(self) -> dict:
         return device.eject(self.config.mount)
@@ -382,6 +406,14 @@ class Handler(SimpleHTTPRequestHandler):
                 folder = query.get("folder", ["patches"])[0]
                 name = query.get("name", ["upload.aif"])[0]
                 return self._json(self.app.upload(folder, name, self._body()))
+            if path == "/api/drum/upload":
+                query = urllib.parse.parse_qs(parsed.query)
+                name = query.get("name", [""])[0]
+                if not name:
+                    return self._error(
+                        "name is required: the dropped file's name", HTTPStatus.BAD_REQUEST
+                    )
+                return self._json(self.app.upload_drum(name, self._body()))
             body = self._json_body()
             if path == "/api/op1fun/install":
                 url = body.get("url", "")
@@ -407,6 +439,8 @@ class Handler(SimpleHTTPRequestHandler):
                         body.get("rel", ""), bool(body.get("backup", True))
                     )
                 )
+            if path == "/api/device/delete":
+                return self._json(self.app.delete_entry(body.get("rel", "")))
             if path == "/api/eject":
                 return self._json(self.app.eject())
             if path == "/api/restart":

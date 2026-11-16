@@ -36,7 +36,14 @@ export const api = {
   installPack: (url, { force = false } = {}) => post('/api/pack/install', { url, force }),
   installLocal: (rel, { force = false } = {}) => post('/api/install/local', { rel, force }),
   installTape: (rel, { backup = true } = {}) => post('/api/tape/install', { rel, backup }),
+  deleteEntry: (rel) => post('/api/device/delete', { rel }),
   eject: () => post('/api/eject'),
+  uploadDrum: (name, file) =>
+    request(`/api/drum/upload?name=${encodeURIComponent(name)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/octet-stream' },
+      body: file,
+    }),
   upload: (folder, name, file) =>
     request(`/api/upload?folder=${encodeURIComponent(folder)}&name=${encodeURIComponent(name)}`, {
       method: 'POST',
