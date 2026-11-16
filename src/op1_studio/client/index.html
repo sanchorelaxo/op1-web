@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>op1-studio</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="stage">
+      <canvas id="scene"></canvas>
+      <div id="tooltip" class="tooltip"></div>
+      <div class="stage-bar">
+        <span id="device-status" class="pill" data-on="false">checking…</span>
+        <span class="hint">drag empty space to orbit · scroll to zoom · click a control</span>
+      </div>
+    </div>
+
+    <aside class="panel">
+      <header>
+        <h1>op1-studio</h1>
+        <p class="sub">patch, pack and tape loader for the original OP-1</p>
+      </header>
+
+      <nav class="tabs">
+        <button data-tab="browse" data-active="true">op1.fun</button>
+        <button data-tab="device" data-active="false">device</button>
+        <button data-tab="tapes" data-active="false">library</button>
+      </nav>
+
+      <section data-pane="browse">
+        <div class="search">
+          <input id="search" type="search" placeholder="search patches" autocomplete="off" />
+          <select id="kind">
+            <option value="">all</option>
+            <option value="synth">synth</option>
+            <option value="drum">drum</option>
+            <option value="sampler">sampler</option>
+          </select>
+        </div>
+        <p id="browse-meta" class="meta">loading…</p>
+        <div id="browse-grid" class="grid"></div>
+        <div class="pager">
+          <button id="page-prev">prev</button>
+          <button id="page-next">next</button>
+        </div>
+        <div class="pack">
+          <label for="pack-url">install a whole pack</label>
+          <div class="row">
+            <input id="pack-url" type="url" placeholder="https://op1.fun/users/…/packs/…" />
+            <button id="pack-load">fetch</button>
+          </div>
+        </div>
+      </section>
+
+      <section data-pane="device" hidden>
+        <div id="device-pane"></div>
+        <p id="guidance" class="guidance"></p>
+        <button id="eject" class="wide">eject safely</button>
+      </section>
+
+      <section data-pane="tapes" hidden>
+        <div id="tapes-pane"></div>
+      </section>
+
+      <footer>
+        <span>installs write to the mounted volume · tape writes keep a backup</span>
+      </footer>
+    </aside>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>

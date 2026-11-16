@@ -1,0 +1,6 @@
+{
+  "name": "op1-studio-client",
+  "private": true,
+  "type": "module",
+  "description": "three.js client for the op1-studio proxy. No build step, no dependencies."
+}

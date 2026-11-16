@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.egg-info/
+
+# Heavy neutral CAD formats: third-party OP-1 geometry, kept out of git.
+# The two files the app and the docs actually use stay tracked:
+#   src/op1_studio/client/assets/op1.stl
+#   refs/3d_cad/teenage-engineering-op-1-2.snapshot.7/OP-1a.jpg
+refs/3d_cad/**/*.stp
+refs/3d_cad/**/*.ipt
+refs/3d_cad/**/*.iam
+refs/3d_cad/**/*.zip
