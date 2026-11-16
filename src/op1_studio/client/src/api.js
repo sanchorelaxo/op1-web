@@ -21,6 +21,8 @@ const post = (url, body) =>
   });
 
 export const api = {
+  health: () => request('/api/health'),
+  restart: () => post('/api/restart'),
   status: () => request('/api/status'),
   library: () => request('/api/library'),
   patches: ({ page = 1, q = '', kind = '' } = {}) =>

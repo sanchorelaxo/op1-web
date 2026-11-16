@@ -11,7 +11,11 @@ from __future__ import annotations
 
 import json
 import mimetypes
+import os
 import posixpath
+import sys
+import threading
+import time
 import traceback
 import urllib.parse
 from http import HTTPStatus
@@ -22,6 +26,52 @@ from . import device, library, op1fun
 from .config import StudioConfig
 
 CLIENT_DIR = Path(__file__).parent / "client"
+
+VERSION = "0.1"
+STARTED_AT = time.monotonic()
+
+# -- service restart ---------------------------------------------------------
+# One mechanism, always the same: the process replaces itself with execve, so
+# the listening port and the PID survive and the code now on disk takes over.
+# That works whether a supervisor started it or the user ran serve.py by hand,
+# and it needs no unit file. The delay lets the HTTP response flush first.
+# (Detecting systemd from INVOCATION_ID is not an option: every child of a
+# systemd-managed session inherits it, so a bare shell looks supervised too.)
+RESTART_DELAY = 0.4        # seconds between the response and the reload
+
+
+def restart_argv() -> list[str]:
+    """Re-run the package, not the file: ``python -m`` keeps relative imports."""
+    return [sys.executable, "-m", "op1_studio.server"]
+
+
+def restart_env(config: StudioConfig) -> dict:
+    """The environment the fresh image needs to come back on the same socket."""
+    env = dict(os.environ)
+    src = str(Path(__file__).resolve().parent.parent)
+    parts = [p for p in env.get("PYTHONPATH", "").split(os.pathsep) if p]
+    if src not in parts:
+        parts.insert(0, src)
+    env["PYTHONPATH"] = os.pathsep.join(parts)
+    env["OP1_STUDIO_HOST"] = config.host
+    env["OP1_STUDIO_PORT"] = str(config.port)
+    env["OP1_STUDIO_DATA"] = str(config.data_dir)
+    if config.mount:
+        env["OP1_MOUNT"] = str(config.mount)
+    else:
+        env.pop("OP1_MOUNT", None)   # a stale mount would beat the real one
+    return env
+
+
+def schedule_restart(config: StudioConfig, exec_fn=None, delay: float = RESTART_DELAY) -> None:
+    """Reload the process with the code now on disk, after ``delay`` seconds."""
+    if exec_fn is None:
+        def reload() -> None:
+            os.execve(sys.executable, restart_argv(), restart_env(config))
+        exec_fn = reload
+    timer = threading.Timer(delay, exec_fn)
+    timer.daemon = True
+    timer.start()
 
 
 class StudioApp:
@@ -178,7 +228,12 @@ class Handler(SimpleHTTPRequestHandler):
 
         try:
             if path == "/api/health":
-                return self._json({"ok": True, "version": "0.1"})
+                return self._json({
+                    "ok": True,
+                    "version": VERSION,
+                    "pid": os.getpid(),
+                    "uptime_s": round(time.monotonic() - STARTED_AT, 1),
+                })
             if path == "/api/status":
                 return self._json(self.app.status())
             if path == "/api/library":
@@ -236,12 +291,36 @@ class Handler(SimpleHTTPRequestHandler):
                 )
             if path == "/api/eject":
                 return self._json(self.app.eject())
+            if path == "/api/restart":
+                return self._post_restart()
         except (device.DeviceError, op1fun.Op1FunError, ValueError) as exc:
             return self._error(str(exc), HTTPStatus.BAD_REQUEST)
         except Exception as exc:
             traceback.print_exc()
             return self._error(str(exc), HTTPStatus.INTERNAL_SERVER_ERROR)
         return self._error("unknown endpoint", HTTPStatus.NOT_FOUND)
+
+    def _post_restart(self) -> None:
+        """Answer, then reload the code on disk.
+
+        The reply goes out before the process is replaced, so the client sees
+        ``restarting`` rather than a dropped connection. Port 0 means the
+        socket was ephemeral and cannot be re-bound, and that is the only case
+        where the proxy cannot bring itself back.
+        """
+        config = self.app.config
+        if config.port == 0:
+            return self._json(
+                {"ok": False,
+                 "error": "the proxy is on an ephemeral port \u2014 restart it manually"},
+                HTTPStatus.CONFLICT,
+            )
+        self._json({
+            "ok": True,
+            "restarting": True,
+            "version": VERSION,
+        })
+        schedule_restart(config)
 
 
 def serve(config: StudioConfig | None = None) -> None:

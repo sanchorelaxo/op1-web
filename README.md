@@ -4,6 +4,12 @@ A browser front end for a Teenage Engineering OP-1: the real CAD shell rendered 
 three.js, keys you can click and drag, and a small local proxy that installs
 patches, packs and tapes onto a mounted OP-1.
 
+![op1-studio with an OP-1 mounted, the Restart bridge service button in the bottom bar](refs/screenshot.png)
+
+The screenshot above is live: 1920x831, an OP-1 in DISK mode with eight synth
+patches, eight drum kits, four tape tracks and both album sides listed, the
+bottom bar reading "OP-1 mounted · 136 MB free".
+
 ## Quick start
 
 ```sh
@@ -31,12 +37,18 @@ the panel works; only the install endpoints report no device.
   `STLLoader`), cut into individually pickable parts.
 - Raycast picking, encoder drag, key press, mode switching, tape mode, patch
   install from the browse panel.
+- **Restart bridge service**: the button in the bottom stage bar POSTs
+  `/api/restart`, and the proxy reloads the code now on disk in place
+  (`execve`, same port, same PID, about half a second of downtime). No unit
+  file or supervisor is needed. The client waits for `/api/health` to report a
+  fresh uptime and then refreshes the device status.
 - `window.op1studio` exposes `{ state, api, scene, camera, controls, renderer,
-  op1, enterMode }` for scripting and comparison shots.
+  op1, enterMode, restartBridge }` for scripting and comparison shots.
 
-Routes: `/api/health`, `/api/status`, `/api/library`, `/api/op1fun/patches`,
-`/api/op1fun/pack`, `/api/upload`, `/api/op1fun/install`, `/api/pack/install`,
-`/api/install/local`, `/api/tape/install`, `/api/eject`.
+Routes: `/api/health`, `/api/restart`, `/api/status`, `/api/library`,
+`/api/op1fun/patches`, `/api/op1fun/pack`, `/api/upload`,
+`/api/op1fun/install`, `/api/pack/install`, `/api/install/local`,
+`/api/tape/install`, `/api/eject`.
 
 ## Panel truth
 
@@ -48,7 +60,7 @@ mesh code follows it.
 ## Tests
 
 ```sh
-PYTHONPATH=src python3 -m pytest -q     # 32 passed
+PYTHONPATH=src python3 -m pytest -q     # 40 passed
 ```
 
 ## Reference assets

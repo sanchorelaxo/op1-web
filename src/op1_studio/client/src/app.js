@@ -570,6 +570,72 @@ el('eject').addEventListener('click', async () => {
   }
 });
 
+// ---------------------------------------------------------------- restart
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Wait until the restarted proxy answers again.
+ *
+ * The old process keeps serving for a moment after it replies, so a health
+ * response only counts once the socket has dropped at least once (or once the
+ * uptime is smaller than the one recorded before the restart).
+ */
+async function waitForBridge(before, deadlineMs = 15000) {
+  const started = performance.now();
+  const staleUptime = before ? before.uptime_s : Infinity;
+  let dropped = !before;
+  while (performance.now() - started < deadlineMs) {
+    await sleep(400);
+    let health = null;
+    try {
+      health = await api.health();
+    } catch {
+      dropped = true; // the listener is gone: the image is being replaced
+      continue;
+    }
+    if (health.ok && (dropped || health.uptime_s < staleUptime)) {
+      return health;
+    }
+  }
+  return null;
+}
+
+async function restartBridge() {
+  const button = el('restart');
+  if (button.disabled) return;
+  button.disabled = true;
+  const before = await api.health().catch(() => null);
+  statusPill.textContent = 'restarting bridge…';
+  statusPill.dataset.on = 'false';
+  setMessage('restarting bridge…');
+
+  try {
+    await api.restart();
+  } catch (err) {
+    button.disabled = false;
+    setMessage(`restart refused: ${err.message}`);
+    await refreshStatus();
+    return;
+  }
+
+  const back = await waitForBridge(before);
+  if (!back) {
+    setMessage('bridge did not come back within 15s');
+    statusPill.textContent = 'proxy down';
+    statusPill.dataset.on = 'false';
+    el('guidance').textContent =
+      'The proxy did not answer after the restart. Check the terminal running it.';
+    button.disabled = false;
+    return;
+  }
+
+  button.disabled = false;
+  await refreshStatus();
+  setMessage(`bridge restarted — v${back.version}, up ${Math.round(back.uptime_s)}s`);
+}
+
+el('restart').addEventListener('click', restartBridge);
+
 // ---------------------------------------------------------------- loop
 const clock = new THREE.Clock();
 function frame() {
@@ -592,4 +658,4 @@ loadBrowse(1);
 frame();
 
 // expose for the browser console and for e2e checks
-window.op1studio = { state, api, scene, camera, controls, renderer, op1, enterMode };
+window.op1studio = { state, api, scene, camera, controls, renderer, op1, enterMode, restartBridge };

@@ -71,6 +71,28 @@ body[data-busy='true'] {
   background: #122019;
 }
 
+/* the one control in the bar: restarting the proxy is a click, not a terminal */
+.stage-bar button {
+  pointer-events: auto;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #151920;
+  color: var(--ink);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.stage-bar button:hover:not(:disabled) {
+  border-color: #38414f;
+  background: #1b212a;
+}
+
+.stage-bar button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
 .tooltip {
   position: absolute;
   padding: 4px 8px;
