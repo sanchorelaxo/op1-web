@@ -13,3 +13,8 @@ refs/3d_cad/**/*.stp
 refs/3d_cad/**/*.ipt
 refs/3d_cad/**/*.iam
 refs/3d_cad/**/*.zip
+
+# PDF page renders are regenerable, big, and only needed while reading a page:
+#   python3 tools/pdf_manual.py render refs/manual_pdf/<manual>.pdf
+# The extracted figures and the markdown sidecar stay tracked.
+refs/manual_pdf/pages/

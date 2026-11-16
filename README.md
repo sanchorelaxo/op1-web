@@ -60,11 +60,29 @@ mesh code follows it.
 ## Tests
 
 ```sh
-PYTHONPATH=src python3 -m pytest -q     # 40 passed
+.venv/bin/python -m pytest -q     # 69 passed
 ```
+
+`tests/test_pdf_manual.py` needs the `dev` extra (`pip install -e ".[dev]"`,
+which pulls pymupdf); on a bare interpreter it skips instead of failing.
 
 ## Reference assets
 
+- `refs/manual_pdf/54b7f9bf8681400300255cab_original.pdf` - the OP-1 operator's
+  manual, **version 1.2** (Oct 2012, 49 pages). Note the version: the online
+  guide at <https://teenage.engineering/guides/op-1/original> is v2.2 and is the
+  source of truth for behaviour; this PDF covers hardware and older firmware.
+- `refs/manual_pdf/54b7f9bf8681400300255cab_original.md` - the manual as text
+  **and** pictures, read with `tools/pdf_manual.py index`. Every figure is
+  extracted to `refs/manual_pdf/figures/` and linked back into the page text at
+  the place it appears, so a paragraph about the display is followed by the
+  display. Do not use `pdftotext` on this document: the manual's OP-1 display
+  mock-ups and panel diagrams are vector line art, not bitmaps, and text
+  extraction silently loses all of them.
+- Page renders, for when the question is about what the screen looks like:
+  `.venv/bin/python tools/pdf_manual.py render refs/manual_pdf/<manual>.pdf
+  --pages 21 --dpi 200` writes a PNG you can open or hand to a vision model.
+  Renders are git-ignored because they are big and regenerable in a second.
 - `refs/3d_cad/teenage-engineering-op-1-2.snapshot.7/OP-1a.jpg` - the main
   reference photo for the project.
 - `refs/print/white/` - three white-balanced panel plates (2048x2048) plus a
