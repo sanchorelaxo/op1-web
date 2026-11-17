@@ -1,0 +1,1681 @@
+{
+ "title": "OP-1 R246 custom firmware (synth SDK)",
+ "description": [
+  "op1r 2: custom synth engines with own screens (supersaw, fmbell, granular), iter lab screen,",
+  "tape echo + clouds granular FX with own screens, quad LFO (4 LFOs, voice/free),\n  euclid sequencer (6 slots), OP-Z controller mode (SysEx F0 00 20 76 00 01 03 F7).",
+  "Built with synth_sdk/make_firmware.py; see docs/."
+ ],
+ "original": {
+  "name": "op1_246.op1",
+  "sha256": "c5315218f825f143b415ca554516541898abee843d3a236df0b54c04e1fb13a9"
+ },
+ "patched_files": [
+  {
+   "path": "OP1_vdk.ldr",
+   "orig_sha256": "f79d299f6f9019c998013a4176223a6a1bc999a2d8c54451346861f6ea455c74",
+   "result_sha256": "c3c264bde9e70075d5d41b82222e0757d8ba11a4735c01bf239b92d7cf3a6d08",
+   "ops": [
+    {
+     "op": "replace",
+     "offset": 2,
+     "old": "7f",
+     "new": "1f"
+    },
+    {
+     "op": "replace",
+     "offset": 12,
+     "old": "d82221",
+     "new": "8c1126"
+    },
+    {
+     "op": "replace",
+     "offset": 50524,
+     "old": "ff",
+     "new": "00"
+    },
+    {
+     "op": "replace",
+     "offset": 313970,
+     "old": "522e203030323436",
+     "new": "206f703172203731"
+    },
+    {
+     "op": "replace",
+     "offset": 317152,
+     "old": "26bfa3",
+     "new": "88e6e3"
+    },
+    {
+     "op": "replace",
+     "offset": 317276,
+     "old": "d0bfa3",
+     "new": "f2e6e3"
+    },
+    {
+     "op": "replace",
+     "offset": 317408,
+     "old": "78c0a3",
+     "new": "44e7e3"
+    },
+    {
+     "op": "replace",
+     "offset": 410896,
+     "old": "78f593",
+     "new": "6824e3"
+    },
+    {
+     "op": "replace",
+     "offset": 410984,
+     "old": "6cf893",
+     "new": "8831e3"
+    },
+    {
+     "op": "replace",
+     "offset": 411072,
+     "old": "dc0794",
+     "new": "9c24e3"
+    },
+    {
+     "op": "replace",
+     "offset": 411160,
+     "old": "acff93",
+     "new": "7037e3"
+    },
+    {
+     "op": "replace",
+     "offset": 411336,
+     "old": "740594",
+     "new": "3424e3"
+    },
+    {
+     "op": "replace",
+     "offset": 411568,
+     "old": "fc5094",
+     "new": "a499e3"
+    },
+    {
+     "op": "replace",
+     "offset": 411936,
+     "old": "302d96",
+     "new": "a0abe1"
+    },
+    {
+     "op": "replace",
+     "offset": 411992,
+     "old": "e05596",
+     "new": "d8abe1"
+    },
+    {
+     "op": "replace",
+     "offset": 412896,
+     "old": "ec89970100000000268997",
+     "new": "c02ce30100000000102de3"
+    },
+    {
+     "op": "replace",
+     "offset": 412920,
+     "old": "988897",
+     "new": "c82de3"
+    },
+    {
+     "op": "replace",
+     "offset": 413096,
+     "old": "42dc97",
+     "new": "cc98e3"
+    },
+    {
+     "op": "replace",
+     "offset": 414288,
+     "old": "4c689a",
+     "new": "8099e3"
+    },
+    {
+     "op": "replace",
+     "offset": 414784,
+     "old": "3cf89a",
+     "new": "f098e3"
+    },
+    {
+     "op": "replace",
+     "offset": 415208,
+     "old": "d4999b01000000008a9b9b010000000080999b01000000006c999b",
+     "new": "980ae00100000000d809e00100000000180ce00100000000b00be0"
+    },
+    {
+     "op": "replace",
+     "offset": 416328,
+     "old": "68ce9c010000000030ce9c",
+     "new": "50e7e301000000005c7ee0"
+    },
+    {
+     "op": "replace",
+     "offset": 416360,
+     "old": "48d09c01000000002ece9c",
+     "new": "9ce7e30100000000c47ee0"
+    },
+    {
+     "op": "replace",
+     "offset": 416392,
+     "old": "04d19c01000000002cce9c",
+     "new": "76e7e301000000000c7fe0"
+    },
+    {
+     "op": "replace",
+     "offset": 417368,
+     "old": "2c669e",
+     "new": "1499e3"
+    },
+    {
+     "op": "replace",
+     "offset": 417456,
+     "old": "34799e01000000000a789e",
+     "new": "a40ee00100000000000ee0"
+    },
+    {
+     "op": "replace",
+     "offset": 417488,
+     "old": "e47e9e0100000000d0789e",
+     "new": "440ee001000000002c0ee0"
+    },
+    {
+     "op": "replace",
+     "offset": 418184,
+     "old": "0c01a0",
+     "new": "28cfe1"
+    },
+    {
+     "op": "replace",
+     "offset": 418232,
+     "old": "f810a00100000000c40da0",
+     "new": "c0b7e10100000000f4cee1"
+    },
+    {
+     "op": "replace",
+     "offset": 418888,
+     "old": "006ca1",
+     "new": "6c75e3"
+    },
+    {
+     "op": "replace",
+     "offset": 419120,
+     "old": "5cc2a1",
+     "new": "3899e3"
+    },
+    {
+     "op": "replace",
+     "offset": 419320,
+     "old": "fc2fa3",
+     "new": "5c99e3"
+    },
+    {
+     "op": "replace",
+     "offset": 420880,
+     "old": "7c1aa50100000000f418a5",
+     "new": "2835e301000000006835e3"
+    },
+    {
+     "op": "replace",
+     "offset": 420904,
+     "old": "6419a5",
+     "new": "8435e3"
+    },
+    {
+     "op": "replace",
+     "offset": 421248,
+     "old": "94cfa5",
+     "new": "c439e1"
+    },
+    {
+     "op": "replace",
+     "offset": 421280,
+     "old": "40e2a5",
+     "new": "9810e1"
+    },
+    {
+     "op": "replace",
+     "offset": 421336,
+     "old": "8cefa5",
+     "new": "54a0e1"
+    },
+    {
+     "op": "replace",
+     "offset": 421392,
+     "old": "4cf6a5",
+     "new": "68a1e1"
+    },
+    {
+     "op": "replace",
+     "offset": 421952,
+     "old": "bc5ba6",
+     "new": "b4dae0"
+    },
+    {
+     "op": "replace",
+     "offset": 422704,
+     "old": "e3052a32",
+     "new": "29e23d64"
+    },
+    {
+     "op": "replace",
+     "offset": 432908,
+     "old": "00e80000",
+     "new": "29e2d650"
+    },
+    {
+     "op": "replace",
+     "offset": 433100,
+     "old": "00e80000",
+     "new": "29e25c50"
+    },
+    {
+     "op": "replace",
+     "offset": 453476,
+     "old": "00e80400",
+     "new": "29e24128"
+    },
+    {
+     "op": "replace",
+     "offset": 458076,
+     "old": "044841e1a0ff",
+     "new": "700f41e1e101"
+    },
+    {
+     "op": "replace",
+     "offset": 461816,
+     "old": "09e38cc8",
+     "new": "28e3fa4b"
+    },
+    {
+     "op": "replace",
+     "offset": 602162,
+     "old": "07e3c95a",
+     "new": "26e3cb1a"
+    },
+    {
+     "op": "replace",
+     "offset": 615364,
+     "old": "00e80000",
+     "new": "27e23acd"
+    },
+    {
+     "op": "replace",
+     "offset": 620996,
+     "old": "07e3f432",
+     "new": "25e364f3"
+    },
+    {
+     "op": "replace",
+     "offset": 632998,
+     "old": "0ae3e4f0",
+     "new": "27e3f8da"
+    },
+    {
+     "op": "replace",
+     "offset": 633026,
+     "old": "0ae3d6f0",
+     "new": "27e3eada"
+    },
+    {
+     "op": "replace",
+     "offset": 633064,
+     "old": "0ae3c3f0",
+     "new": "27e3d7da"
+    },
+    {
+     "op": "replace",
+     "offset": 633082,
+     "old": "0ae3baf0",
+     "new": "27e3ceda"
+    },
+    {
+     "op": "replace",
+     "offset": 633310,
+     "old": "22e14000",
+     "new": "27e24cda"
+    },
+    {
+     "op": "replace",
+     "offset": 742980,
+     "old": "e8e54de10101",
+     "new": "20084de190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 771880,
+     "old": "700508e114ac",
+     "new": "26e212b90000"
+    },
+    {
+     "op": "replace",
+     "offset": 777828,
+     "old": "06e3c403",
+     "new": "24e3c6c3"
+    },
+    {
+     "op": "replace",
+     "offset": 805746,
+     "old": "ffe3b9fe",
+     "new": "24e3838c"
+    },
+    {
+     "op": "replace",
+     "offset": 807616,
+     "old": "fb89",
+     "new": "2b88"
+    },
+    {
+     "op": "replace",
+     "offset": 811976,
+     "old": "e8e54ce10101",
+     "new": "20084ce190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 838448,
+     "old": "04e37f53",
+     "new": "25e3d2db"
+    },
+    {
+     "op": "replace",
+     "offset": 852220,
+     "old": "e8e54be10101",
+     "new": "20084be190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 853106,
+     "old": "e8e54be10101",
+     "new": "20084be190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 854140,
+     "old": "e8e54be10101",
+     "new": "20084be190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 855142,
+     "old": "e8e54be10101",
+     "new": "20084be190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 856144,
+     "old": "e8e54be10101",
+     "new": "20084be190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 857312,
+     "old": "e8e54be10101",
+     "new": "20084be190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 860252,
+     "old": "e8e54de10101",
+     "new": "20084de190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 864118,
+     "old": "b2e01a11",
+     "new": "26e22d18"
+    },
+    {
+     "op": "replace",
+     "offset": 866216,
+     "old": "e8e54ce10101",
+     "new": "20084ce190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 867206,
+     "old": "4f32b16f",
+     "new": "26e21f11"
+    },
+    {
+     "op": "replace",
+     "offset": 880922,
+     "old": "05e3713a",
+     "new": "23e373fa"
+    },
+    {
+     "op": "replace",
+     "offset": 893344,
+     "old": "05e3201f",
+     "new": "23e390df"
+    },
+    {
+     "op": "replace",
+     "offset": 960704,
+     "old": "03e39470",
+     "new": "24e3c0ea"
+    },
+    {
+     "op": "replace",
+     "offset": 995258,
+     "old": "07e33ddd",
+     "new": "24e3d1a3"
+    },
+    {
+     "op": "replace",
+     "offset": 1000528,
+     "old": "03e3cc22",
+     "new": "24e3f89c"
+    },
+    {
+     "op": "replace",
+     "offset": 1002638,
+     "old": "03e3ad1e",
+     "new": "24e3d998"
+    },
+    {
+     "op": "replace",
+     "offset": 1013014,
+     "old": "e8e54de10101",
+     "new": "20084de190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 1013480,
+     "old": "e8e54ce10101",
+     "new": "20084ce190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 1029850,
+     "old": "e8e54de101011f91c7bbb2e0ef20",
+     "new": "20084de190ff1f91c7bb24e22fd4"
+    },
+    {
+     "op": "replace",
+     "offset": 1034004,
+     "old": "04e3660c",
+     "new": "22e3d6cc"
+    },
+    {
+     "op": "replace",
+     "offset": 1036778,
+     "old": "e8e549e10101",
+     "new": "200849e190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 1048526,
+     "old": "18300b32",
+     "new": "22e2cbb3"
+    },
+    {
+     "op": "replace",
+     "offset": 1055476,
+     "old": "38080b10",
+     "new": "24e3898f"
+    },
+    {
+     "op": "replace",
+     "offset": 1056444,
+     "old": "01080710",
+     "new": "24e3b88d"
+    },
+    {
+     "op": "replace",
+     "offset": 1066608,
+     "old": "e8e54ae10101",
+     "new": "20084ae190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 1067758,
+     "old": "e8e549e10101",
+     "new": "200849e190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 1067886,
+     "old": "a2e0cd01",
+     "new": "24e2038a"
+    },
+    {
+     "op": "replace",
+     "offset": 1071160,
+     "old": "03e3d4c3",
+     "new": "22e34484"
+    },
+    {
+     "op": "replace",
+     "offset": 1108380,
+     "old": "18300b32",
+     "new": "22e2603a"
+    },
+    {
+     "op": "replace",
+     "offset": 1109226,
+     "old": "e8e54de10101",
+     "new": "20084de190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 1110328,
+     "old": "03e38c71",
+     "new": "22e3003c"
+    },
+    {
+     "op": "replace",
+     "offset": 1146750,
+     "old": "ffe39b9f",
+     "new": "21e331fe"
+    },
+    {
+     "op": "replace",
+     "offset": 1147038,
+     "old": "01e34df1",
+     "new": "22e3b1c4"
+    },
+    {
+     "op": "replace",
+     "offset": 1147092,
+     "old": "ffe3bc9e",
+     "new": "22e31808"
+    },
+    {
+     "op": "replace",
+     "offset": 1148976,
+     "old": "00e36e0c",
+     "new": "21e398f9"
+    },
+    {
+     "op": "replace",
+     "offset": 1149148,
+     "old": "00e3180c",
+     "new": "21e342f9"
+    },
+    {
+     "op": "replace",
+     "offset": 1175074,
+     "old": "ffe3bdff",
+     "new": "21e361bb"
+    },
+    {
+     "op": "replace",
+     "offset": 1175162,
+     "old": "ffe391ff",
+     "new": "21e335bb"
+    },
+    {
+     "op": "replace",
+     "offset": 1175364,
+     "old": "09e11e59",
+     "new": "23e25278"
+    },
+    {
+     "op": "replace",
+     "offset": 1184196,
+     "old": "e8e548e10101",
+     "new": "200848e190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 1199462,
+     "old": "e8e54de10101",
+     "new": "20084de190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 1200286,
+     "old": "e8e54ae10101",
+     "new": "20084ae190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 1200590,
+     "old": "e8e54de10101",
+     "new": "20084de190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 1261902,
+     "old": "01e3aa1d",
+     "new": "21e35d0f"
+    },
+    {
+     "op": "replace",
+     "offset": 1269592,
+     "old": "00601000",
+     "new": "22e201ed"
+    },
+    {
+     "op": "replace",
+     "offset": 1271672,
+     "old": "04e3ac47",
+     "new": "21e3808b"
+    },
+    {
+     "op": "replace",
+     "offset": 1271928,
+     "old": "04e32c47",
+     "new": "21e3f68a"
+    },
+    {
+     "op": "replace",
+     "offset": 1272430,
+     "old": "04e33146",
+     "new": "21e3058a"
+    },
+    {
+     "op": "replace",
+     "offset": 1279908,
+     "old": "a5e60900",
+     "new": "22e2e5d8"
+    },
+    {
+     "op": "replace",
+     "offset": 1281082,
+     "old": "03e3fdd6",
+     "new": "21e3d501"
+    },
+    {
+     "op": "replace",
+     "offset": 1281836,
+     "old": "ffe36efa",
+     "new": "22e30e90"
+    },
+    {
+     "op": "replace",
+     "offset": 1285244,
+     "old": "02e3d224",
+     "new": "20e3d4e4"
+    },
+    {
+     "op": "replace",
+     "offset": 1291728,
+     "old": "e8e54de10101",
+     "new": "20084de190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 1293484,
+     "old": "02e3ac11",
+     "new": "20e31cd2"
+    },
+    {
+     "op": "replace",
+     "offset": 1298102,
+     "old": "e8e54ce10101",
+     "new": "20084ce190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 1299856,
+     "old": "02e33a05",
+     "new": "20e3aac5"
+    },
+    {
+     "op": "replace",
+     "offset": 1332260,
+     "old": "05e37c52",
+     "new": "22e30c2d"
+    },
+    {
+     "op": "replace",
+     "offset": 1332556,
+     "old": "fbe319fb",
+     "new": "21e3e466"
+    },
+    {
+     "op": "replace",
+     "offset": 1332570,
+     "old": "fbe3cd6570a3fde35e37",
+     "new": "21e3596670a321e3f467"
+    },
+    {
+     "op": "replace",
+     "offset": 1332930,
+     "old": "00e3bdaa",
+     "new": "21e36b67"
+    },
+    {
+     "op": "replace",
+     "offset": 1333174,
+     "old": "ffe3393a",
+     "new": "21e30965"
+    },
+    {
+     "op": "replace",
+     "offset": 1333822,
+     "old": "02e33f59",
+     "new": "20e38f8c"
+    },
+    {
+     "op": "replace",
+     "offset": 1334416,
+     "old": "03e376",
+     "new": "21e358"
+    },
+    {
+     "op": "replace",
+     "offset": 1334862,
+     "old": "03e3971d",
+     "new": "21e3dba6"
+    },
+    {
+     "op": "replace",
+     "offset": 1334962,
+     "old": "05e301",
+     "new": "22e339"
+    },
+    {
+     "op": "replace",
+     "offset": 1403568,
+     "old": "ffe328fc",
+     "new": "1fe352fa"
+    },
+    {
+     "op": "replace",
+     "offset": 1403602,
+     "old": "ffe349fc",
+     "new": "20e3adcf"
+    },
+    {
+     "op": "replace",
+     "offset": 1414414,
+     "old": "00e37dce",
+     "new": "1fe3d1e8"
+    },
+    {
+     "op": "replace",
+     "offset": 1414932,
+     "old": "fde38ccc",
+     "new": "21e3ac74"
+    },
+    {
+     "op": "replace",
+     "offset": 1416748,
+     "old": "ffe3f4f5",
+     "new": "21e3ca71"
+    },
+    {
+     "op": "replace",
+     "offset": 1417998,
+     "old": "ffe3d3fd",
+     "new": "20e395c1"
+    },
+    {
+     "op": "replace",
+     "offset": 1418224,
+     "old": "ffe362fd",
+     "new": "20e324c1"
+    },
+    {
+     "op": "replace",
+     "offset": 1418340,
+     "old": "ffe3d8f2",
+     "new": "21e3046d"
+    },
+    {
+     "op": "replace",
+     "offset": 1419730,
+     "old": "ffe3bbfd",
+     "new": "20e313be"
+    },
+    {
+     "op": "replace",
+     "offset": 1420096,
+     "old": "ffe304fd",
+     "new": "20e35cbd"
+    },
+    {
+     "op": "replace",
+     "offset": 1420272,
+     "old": "00e1301e",
+     "new": "21e220c8"
+    },
+    {
+     "op": "replace",
+     "offset": 1445702,
+     "old": "e8e54be10101a2e03d40",
+     "new": "20084be190ff21e27ea8"
+    },
+    {
+     "op": "replace",
+     "offset": 1450940,
+     "old": "ffe38801",
+     "new": "1fe342a0"
+    },
+    {
+     "op": "replace",
+     "offset": 1487540,
+     "old": "02e3325d",
+     "new": "21e3e209"
+    },
+    {
+     "op": "replace",
+     "offset": 1489826,
+     "old": "fee311a2",
+     "new": "21e3df04"
+    },
+    {
+     "op": "replace",
+     "offset": 1490920,
+     "old": "fee3ee9f",
+     "new": "21e3bc02"
+    },
+    {
+     "op": "replace",
+     "offset": 1511016,
+     "old": "a2e02e00",
+     "new": "21e26a28"
+    },
+    {
+     "op": "replace",
+     "offset": 1511192,
+     "old": "b2e04421",
+     "new": "21e2f927"
+    },
+    {
+     "op": "replace",
+     "offset": 1516098,
+     "old": "00e3e75e",
+     "new": "1fe3571f"
+    },
+    {
+     "op": "replace",
+     "offset": 1540524,
+     "old": "0032e505",
+     "new": "20e20dde"
+    },
+    {
+     "op": "replace",
+     "offset": 1542122,
+     "old": "0032e505",
+     "new": "20e2dcda"
+    },
+    {
+     "op": "replace",
+     "offset": 1548056,
+     "old": "b45549e1a0ff",
+     "new": "7aeb49e1e301"
+    },
+    {
+     "op": "replace",
+     "offset": 1548076,
+     "old": "00e80600",
+     "new": "20e226cf"
+    },
+    {
+     "op": "replace",
+     "offset": 1550158,
+     "old": "b45549e1a0ff",
+     "new": "7aeb49e1e301"
+    },
+    {
+     "op": "replace",
+     "offset": 1557896,
+     "old": "b45549e1a0ff",
+     "new": "7aeb49e1e301"
+    },
+    {
+     "op": "replace",
+     "offset": 1558284,
+     "old": "b45549e1a0ff",
+     "new": "7aeb49e1e301"
+    },
+    {
+     "op": "replace",
+     "offset": 1558384,
+     "old": "b45549e1a0ff",
+     "new": "7aeb49e1e301"
+    },
+    {
+     "op": "replace",
+     "offset": 1582584,
+     "old": "ffe31ae0",
+     "new": "1ee31ca0"
+    },
+    {
+     "op": "replace",
+     "offset": 1597100,
+     "old": "ffe3c0c3",
+     "new": "1ee3c283"
+    },
+    {
+     "op": "replace",
+     "offset": 1606522,
+     "old": "a2e0c532",
+     "new": "20e2326e"
+    },
+    {
+     "op": "replace",
+     "offset": 1610274,
+     "old": "ffe3f7a6",
+     "new": "1ee36767"
+    },
+    {
+     "op": "replace",
+     "offset": 1640432,
+     "old": "00e80000",
+     "new": "20e2121b"
+    },
+    {
+     "op": "replace",
+     "offset": 1642064,
+     "old": "ffe3433c",
+     "new": "1fe354e4"
+    },
+    {
+     "op": "replace",
+     "offset": 1642440,
+     "old": "fbe3d0f2",
+     "new": "1ee3402d"
+    },
+    {
+     "op": "replace",
+     "offset": 1642528,
+     "old": "fce38e48",
+     "new": "1ee3b835"
+    },
+    {
+     "op": "replace",
+     "offset": 1668444,
+     "old": "09e138a6",
+     "new": "1de242f7"
+    },
+    {
+     "op": "replace",
+     "offset": 1670302,
+     "old": "ffe38bfc",
+     "new": "1de39df2"
+    },
+    {
+     "op": "replace",
+     "offset": 1670732,
+     "old": "ffe3b4fb",
+     "new": "1de3c6f1"
+    },
+    {
+     "op": "replace",
+     "offset": 1670992,
+     "old": "ffe332fb",
+     "new": "1de344f1"
+    },
+    {
+     "op": "replace",
+     "offset": 1696356,
+     "old": "ffe3ea01",
+     "new": "1de3ecc1"
+    },
+    {
+     "op": "replace",
+     "offset": 1699636,
+     "old": "e8e54be10101a2e00d11",
+     "new": "20084be190ff1fe2acb8"
+    },
+    {
+     "op": "replace",
+     "offset": 1728988,
+     "old": "fde3ee80",
+     "new": "1ee35254"
+    },
+    {
+     "op": "replace",
+     "offset": 1733382,
+     "old": "e8e548e10101",
+     "new": "200848e190ff"
+    },
+    {
+     "op": "replace",
+     "offset": 1743618,
+     "old": "02e3a12b",
+     "new": "1ee3cf85"
+    },
+    {
+     "op": "replace",
+     "offset": 1800284,
+     "old": "00e80900",
+     "new": "1ee2a4e2"
+    },
+    {
+     "op": "replace",
+     "offset": 1829362,
+     "old": "1401",
+     "new": "3c03"
+    },
+    {
+     "op": "replace",
+     "offset": 1829378,
+     "old": "1401",
+     "new": "3c03"
+    },
+    {
+     "op": "replace",
+     "offset": 1851490,
+     "old": "ffe3adda",
+     "new": "1de3411e"
+    },
+    {
+     "op": "replace",
+     "offset": 1944092,
+     "old": "00e80400",
+     "new": "1de2a2c7"
+    },
+    {
+     "op": "replace",
+     "offset": 1944332,
+     "old": "00e80800",
+     "new": "1de245c7"
+    },
+    {
+     "op": "replace",
+     "offset": 1945430,
+     "old": "ffe381f9",
+     "new": "1be375f0"
+    },
+    {
+     "op": "replace",
+     "offset": 1946882,
+     "old": "fce36336",
+     "new": "1ce32926"
+    },
+    {
+     "op": "replace",
+     "offset": 1947716,
+     "old": "fce3c234",
+     "new": "1ce38824"
+    },
+    {
+     "op": "insert",
+     "offset": 2171349,
+     "blob": "OP1_vdk.ldr.insert.bin",
+     "sha256": "259e07476c27a44caf86818c88e89b4a47a5cfa797856f9ce484839da83caa75",
+     "size": 323252
+    }
+   ]
+  },
+  {
+   "path": "content/display/com.svg",
+   "orig_sha256": "d0fe84075e6b72d87d2c3c8734fbf144411272ae2c2eb0bb685cb97f7cedfc36",
+   "result_sha256": "987a15a65152c0b515d7bf80e9df60082d6a57abc1b901217c97bdd0db708da9",
+   "ops": [
+    {
+     "op": "replace",
+     "offset": 56360,
+     "old": "0d0a090d0a09093c6c696e6520646973706c61793d22696e6c696e65222066696c6c3d226e6f6e6522207374726f6b653d222335353533383022207374726f6b652d77696474683d22312e3522207374726f6b652d6c696e656361703d22737175617265222078313d223235322e383132222079313d2231352e373838222078323d223235322e383132222079323d2232332e303632222f3e0d0a090d0a09093c6c696e6520646973706c61793d22696e6c696e65222066696c6c3d226e6f6e6522207374726f6b653d222335353533383022207374726f6b652d77696474683d22312e3522207374726f6b652d6c696e656361703d22737175617265222078313d223236302e383132222079313d2231352e373838222078323d223236302e383132222079323d2232332e303632222f3e0d0a093c706f6c796c696e6520646973706c61793d22696e6c696e65222066696c6c3d226e6f6e6522207374726f6b653d222335353533383022207374726f6b652d77696474683d22312e3522207374726f6b652d6c696e656361703d227371756172652220706f696e74733d223234362e3236362c32332e303632200d0a09093234362e3236362c31352e373838203234362e3632392c31352e373838203234382e3236362c32302e3135203234382e3632392c32302e3135203235302e3236362c31352e373838203235302e3632392c31352e373838203235302e3632392c32332e3036322009222f3e0d0a093c7061746820646973706c61793d22696e6c696e65222066696c6c3d226e6f6e6522207374726f6b653d222335353533383022207374726f6b652d77696474683d22312e3522207374726f6b652d6c696e656361703d227371756172652220643d224d3235362e3831322c32332e3036320d0a090963312e3030342c302c312e3831322d302e3831352c312e3831322d312e3832762d332e36333763302d312e3030362d302e3831322d312e3831382d312e3831322d312e383138682d312e38313976372e323735483235362e3831327a222f3e0d0a093c7061746820646973706c61793d22696e6c696e65222066696c6c3d226e6f6e6522207374726f6b653d222335353533383022207374726f6b652d77696474683d22312e3522207374726f6b652d6c696e656361703d227371756172652220643d224d3235302e3737392c33312e3133390d0a090963302c312e30312d302e3831322c312e3832382d312e3831382c312e383238632d312e3030332c302d312e3831322d302e3831382d312e3831322d312e383238762d332e36353263302d312e3030382c302e3831322d312e38322c312e3831322d312e38320d0a090963312e3030362c302c312e3831382c302e3831322c312e3831382c312e3832222f3e0d0a090d0a09093c6c696e6520646973706c61793d22696e6c696e65222066696c6c3d226e6f6e6522207374726f6b653d222335353533383022207374726f6b652d77696474683d22312e3522207374726f6b652d6c696e656361703d22737175617265222078313d223235322e323334222079313d2232352e363635222078323d223235322e323334222079323d2233322e393637222f3e0d0a090d0a09093c6c696e6520646973706c61793d22696e6c696e65222066696c6c3d226e6f6e6522207374726f6b653d222335353533383022207374726f6b652d77696474683d22312e3522207374726f6b652d6c696e656361703d22737175617265222078313d223235352e383731222079313d2232352e363635222078323d223235352e383731222079323d2233322e393637222f3e0d0a090d0a09093c6c696e6520646973706c61793d22696e6c696e65222066696c6c3d226e6f6e6522207374726f6b653d222335353533383022207374726f6b652d77696474683d22312e3522207374726f6b652d6c696e656361703d22737175617265222078313d223235322e323334222079313d2232392e333132222078323d223235352e383733222079323d2232392e333132222f3e0d0a093c7061746820646973706c61793d22696e6c696e65222066696c6c3d226e6f6e6522207374726f6b653d222333383335373222207374726f6b652d77696474683d22312e35",
+     "new": "3c67207472616e73666f726d3d227472616e736c617465282d3436203029223e0d0a090d0a09093c6c696e6520646973706c61793d22696e6c696e65222066696c6c3d226e6f6e6522207374726f6b653d222335353533383022207374726f6b652d77696474683d22312e3522207374726f6b652d6c696e656361703d22737175617265222078313d223235322e383132222079313d2231352e373838222078323d223235322e383132222079323d2232332e303632222f3e0d0a090d0a09093c6c696e6520646973706c61793d22696e6c696e65222066696c6c3d226e6f6e6522207374726f6b653d222335353533383022207374726f6b652d77696474683d22312e3522207374726f6b652d6c696e656361703d22737175617265222078313d223236302e383132222079313d2231352e373838222078323d223236302e383132222079323d2232332e303632222f3e0d0a093c706f6c796c696e6520646973706c61793d22696e6c696e65222066696c6c3d226e6f6e6522207374726f6b653d222335353533383022207374726f6b652d77696474683d22312e3522207374726f6b652d6c696e656361703d227371756172652220706f696e74733d223234362e3236362c32332e303632200d0a09093234362e3236362c31352e373838203234362e3632392c31352e373838203234382e3236362c32302e3135203234382e3632392c32302e3135203235302e3236362c31352e373838203235302e3632392c31352e373838203235302e3632392c32332e3036322009222f3e0d0a093c7061746820646973706c61793d22696e6c696e65222066696c6c3d226e6f6e6522207374726f6b653d222335353533383022207374726f6b652d77696474683d22312e3522207374726f6b652d6c696e656361703d227371756172652220643d224d3235362e3831322c32332e3036320d0a090963312e3030342c302c312e3831322d302e3831352c312e3831322d312e3832762d332e36333763302d312e3030362d302e3831322d312e3831382d312e3831322d312e383138682d312e38313976372e323735483235362e3831327a222f3e0d0a093c7061746820646973706c61793d22696e6c696e65222066696c6c3d226e6f6e6522207374726f6b653d222335353533383022207374726f6b652d77696474683d22312e3522207374726f6b652d6c696e656361703d227371756172652220643d224d3235302e3737392c33312e3133390d0a090963302c312e30312d302e3831322c312e3832382d312e3831382c312e383238632d312e3030332c302d312e3831322d302e3831382d312e3831322d312e383238762d332e36353263302d312e3030382c302e3831322d312e38322c312e3831322d312e38320d0a090963312e3030362c302c312e3831382c302e3831322c312e3831382c312e3832222f3e0d0a090d0a09093c6c696e6520646973706c61793d22696e6c696e65222066696c6c3d226e6f6e6522207374726f6b653d222335353533383022207374726f6b652d77696474683d22312e3522207374726f6b652d6c696e656361703d22737175617265222078313d223235322e323334222079313d2232352e363635222078323d223235322e323334222079323d2233322e393637222f3e0d0a090d0a09093c6c696e6520646973706c61793d22696e6c696e65222066696c6c3d226e6f6e6522207374726f6b653d222335353533383022207374726f6b652d77696474683d22312e3522207374726f6b652d6c696e656361703d22737175617265222078313d223235352e383731222079313d2232352e363635222078323d223235352e383731222079323d2233322e393637222f3e0d0a090d0a09093c6c696e6520646973706c61793d22696e6c696e65222066696c6c3d226e6f6e6522207374726f6b653d222335353533383022207374726f6b652d77696474683d22312e3522207374726f6b652d6c696e656361703d22737175617265222078313d223235322e323334222079313d2232392e333132222078323d223235352e383733222079323d2232392e333132222f3e0d0a093c2f673e3c7061746820646973706c61793d22696e6c696e65222066696c6c3d226e6f6e65"
+    },
+    {
+     "op": "replace",
+     "offset": 57915,
+     "old": "2d6c696e656361703d227371756172652220643d224d3239312e3933342c3131322e3836350d0a090963302c312e3537322d312e3138382c322e3736372d322e3636362c322e373637483234312e3435632d312e3437362c302d322e3636362d312e3139322d322e3636362d322e36363656352e35323163302d312e3437332c312e31392d322e3636372c",
+     "new": "3d222333383335373222207374726f6b652d77696474683d22312e3522207374726f6b652d6c696e656361703d227371756172652220643d224d3239312e3933342c3131322e3836350d0a090963302c312e3537322d312e3138382c322e3736372d322e3636362c322e373637483139362e363636632d312e3437362c302d322e3636362d312e3139322d"
+    },
+    {
+     "op": "replace",
+     "offset": 58064,
+     "old": "376834372e383137",
+     "new": "3656352e35323163"
+    },
+    {
+     "op": "insert",
+     "offset": 58072,
+     "blob": "content_display_com.svg.insert.bin",
+     "sha256": "aa2ef1e12fb9f3787957f94aa377f117aab1506879f3ce2832918e5533f80ec4",
+     "size": 37
+    }
+   ]
+  },
+  {
+   "path": "content/display/tempo.svg",
+   "orig_sha256": "60b00ee3c602fe9c2ac38b67d3d156978adf696816f4a78d469b6e3e6a8f9855",
+   "result_sha256": "a0ac3a03f7a628f25fdbecbcd33f4bb89260248a35a142c8db6ac2a34ee17501",
+   "ops": [
+    {
+     "op": "insert",
+     "offset": 20986,
+     "blob": "content_display_tempo.svg.insert.bin",
+     "sha256": "b5ab754188009905b776379d15fa4e2c05096cf611b13422ca2615925f2b6e03",
+     "size": 45
+    }
+   ]
+  },
+  {
+   "path": "content/op1_factory.db",
+   "orig_sha256": "be4572298fe9dc83b106d5c4eaf1cc972280d97f028f3eaebc0c76dc68ac9cf0",
+   "result_sha256": "c1e5c3492ea3c5d101509973ff66b150a275d4551e7a4ffe98f7b615a853de75",
+   "ops": [
+    {
+     "op": "replace",
+     "offset": 27,
+     "old": "0c",
+     "new": "0d"
+    },
+    {
+     "op": "replace",
+     "offset": 95,
+     "old": "0c002e0928",
+     "new": "0d002e95ca"
+    },
+    {
+     "op": "replace",
+     "offset": 1028,
+     "old": "0702880003c403860357031b02dd02b502880000",
+     "new": "08025000025003c403860357031b02dd02b50288"
+    },
+    {
+     "op": "replace",
+     "offset": 1616,
+     "old": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+     "new": "36020400196566696c7465725b31343532382c20302c20302c2032333238302c20383030302c20383030302c20383030302c20383030305d"
+    },
+    {
+     "op": "replace",
+     "offset": 2052,
+     "old": "0702dd",
+     "new": "090272"
+    },
+    {
+     "op": "replace",
+     "offset": 2070,
+     "old": "00000000",
+     "new": "02a40272"
+    },
+    {
+     "op": "replace",
+     "offset": 2674,
+     "old": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+     "new": "30090400155d706f6e645b363137352c203338342c202d383137322c203235362c20302c20302c20302c202d32323738345d37080400156b717561645b31392c202d383139322c20372c202d32323532362c20322c202d393732372c2032343537362c202d32333136385d"
+    },
+    {
+     "op": "replace",
+     "offset": 4097,
+     "old": "024f000a01ee00",
+     "new": "0000000b01ee02"
+    },
+    {
+     "op": "replace",
+     "offset": 4124,
+     "old": "0000",
+     "new": "024f"
+    },
+    {
+     "op": "replace",
+     "offset": 4687,
+     "old": "0000002f19536473796e74685b313531362c2031363730342c20302c2031353136382c20302c20302c20302c20",
+     "new": "2b0b04001553697465725b313531362c2031363730342c20302c2031353136382c20302c20302c20302c20305d"
+    }
+   ]
+  }
+ ],
+ "added_files": [
+  {
+   "path": "content/display/fxgeneric.svg",
+   "copy_of": "content/display/iter.svg",
+   "sha256": "d7716e5fd399c7462c5990379074fcffc1c2a5f702f8b76341d141310f192d37",
+   "template": "content/display/adsr.svg"
+  },
+  {
+   "path": "content/display/iterlab.svg",
+   "blob": "files/content_display_iterlab.svg",
+   "sha256": "0aecb8ba7a1ae70e4add48b1c52df0268a200b09cc0334925483dc066d5c1309",
+   "template": "content/display/adsr.svg"
+  },
+  {
+   "path": "content/display/pondlfo.svg",
+   "blob": "files/content_display_pondlfo.svg",
+   "sha256": "d2a05c74d16f858c4f858b2f3fbadb8517513a759359ea109ae067cf689caa7d",
+   "template": "content/display/adsr.svg"
+  },
+  {
+   "path": "content/display/quadlfo.svg",
+   "blob": "files/content_display_quadlfo.svg",
+   "sha256": "97a28f6c391ca87272a1330c89d653a4c42b04070a7a7a84f7058017ea2dc62a",
+   "template": "content/display/adsr.svg"
+  },
+  {
+   "path": "content/display/sysmon.svg",
+   "blob": "files/content_display_sysmon.svg",
+   "sha256": "d360583247e632913ccd534a0bb4a3e288edfca00197d5f87e6fc551e0f30cf4",
+   "template": "content/display/adsr.svg"
+  },
+  {
+   "path": "content/display/usbout.svg",
+   "blob": "files/content_display_usbout.svg",
+   "sha256": "26378c2507ac65c2ebc25d77d23030e6f3336842b6307e72ac5f57192e3ad7f9",
+   "template": "content/display/adsr.svg"
+  }
+ ],
+ "plugins": [
+  {
+   "name": "aether",
+   "kind": "synth",
+   "author": "pcppcp",
+   "file": "aether.op1p",
+   "size": 24786,
+   "sha256": "937db76f9f9c74d11b4dbb08415318682cd839d69a088ca9068887d4defa3278"
+  },
+  {
+   "name": "amp",
+   "kind": "synth",
+   "author": "Hundekraft; input-engine workflow inspired by Teenage Engineering OP-1 Field",
+   "file": "amp.op1p",
+   "size": 38196,
+   "sha256": "1dd26076a030c33a6aa17fd5cce6a49480d41b92b61f9a6899d4d6cf80451f51"
+  },
+  {
+   "name": "arc",
+   "kind": "synth",
+   "author": "ultralazr",
+   "file": "arc.op1p",
+   "size": 15995,
+   "sha256": "16ce2a1f36c81ea804ab70f3cb2e94512a56c04fe9a1c61ec0608a30a98c6def"
+  },
+  {
+   "name": "bloodmoon",
+   "kind": "synth",
+   "author": "SammiBabe666",
+   "file": "bloodmoon.op1p",
+   "size": 17519,
+   "sha256": "17352c5d345a2a3a713289195d5336c29866a6635fbbc84307256b7d5fc59629"
+  },
+  {
+   "name": "blot",
+   "kind": "synth",
+   "author": "pcppcp",
+   "file": "blot.op1p",
+   "size": 9232,
+   "sha256": "34d6b6d76fe6f092de8ee0d0c802b5638034f0113fda0c68d88a9f9873e16c76"
+  },
+  {
+   "name": "brassophone",
+   "kind": "synth",
+   "author": "nvmsocool",
+   "file": "brassophone.op1p",
+   "size": 50944,
+   "sha256": "d4357cd93e36915a528d11fda0bd2681e0345a2d878e9e74f1f171eaa1f00ad1"
+  },
+  {
+   "name": "dddd",
+   "kind": "synth",
+   "author": "pcppcp",
+   "file": "dddd.op1p",
+   "size": 13753,
+   "sha256": "c1bc3327d6ea79b08a0be34a37f01ff00ac8e9d5daab343aa01b543979169741"
+  },
+  {
+   "name": "elg",
+   "kind": "synth",
+   "author": "hundekraft",
+   "file": "elg.op1p",
+   "size": 53462,
+   "sha256": "2a593d4e86f625bde05eb884a5f82f05ca2e7e13df07fb3c56ff0fdd0cd52804"
+  },
+  {
+   "name": "eva",
+   "kind": "synth",
+   "author": "hundekraft",
+   "file": "eva.op1p",
+   "size": 87598,
+   "sha256": "eb57cc06d3ee9792d5882f3273135c50a3bd02fedf731dd26538c3eb9ef91279"
+  },
+  {
+   "name": "fmbell",
+   "kind": "synth",
+   "author": "pcppcp",
+   "file": "fmbell.op1p",
+   "size": 5985,
+   "sha256": "41deb6d898782a12310634c2f15858d9efac7777e8a18e33c40493911693ea1e"
+  },
+  {
+   "name": "granular",
+   "kind": "synth",
+   "author": "pcppcp / displayname808; OP1R port",
+   "file": "granular.op1p",
+   "size": 54843,
+   "sha256": "eb1c4ce2ca204ff2ba27a8c5d91439b28509d3b311be9e3fc22f11983e6a2542"
+  },
+  {
+   "name": "hollowsaint",
+   "kind": "synth",
+   "author": "SammiBabe666",
+   "file": "hollowsaint.op1p",
+   "size": 69889,
+   "sha256": "f3f606cceee7cbf467da3e03d0519c5527cf201234b03769d92dfbfd23a689e2"
+  },
+  {
+   "name": "juni",
+   "kind": "synth",
+   "author": "hundekraft",
+   "file": "juni.op1p",
+   "size": 39036,
+   "sha256": "c64fd53978a4593d1fff3760671e9281d8a5b1aa7e78899aaa27ba82f4c17f3e"
+  },
+  {
+   "name": "mbira",
+   "kind": "synth",
+   "author": "hundekraft",
+   "file": "mbira.op1p",
+   "size": 61332,
+   "sha256": "6a91a01c6172c80293796b1245b50deeb6a7124629474a41cc12e342fab66bc0"
+  },
+  {
+   "name": "mixtur",
+   "kind": "synth",
+   "author": "ultralazr",
+   "file": "mixtur.op1p",
+   "size": 11776,
+   "sha256": "6330be24c0416d810fe06b7c4527e58777c4fa4eb12482a90a164d78f6249060"
+  },
+  {
+   "name": "moai",
+   "kind": "synth",
+   "author": "moai contributors",
+   "file": "moai.op1p",
+   "size": 66156,
+   "sha256": "f463d756b2c8e99f891ece82f78d87b1c918b0d7aa37c979179a04c37ba49ebe"
+  },
+  {
+   "name": "monolit",
+   "kind": "synth",
+   "author": "hundekraft",
+   "file": "monolit.op1p",
+   "size": 12062,
+   "sha256": "7096592322a7c419a31daeac6cb90b3cf11c9aa590e36c64b34b675a0783b2d4"
+  },
+  {
+   "name": "percsyn",
+   "kind": "synth",
+   "author": "perc for op1r; PO-32 patch model after libpo32 (MIT, Eric Lewis)",
+   "file": "percsyn.op1p",
+   "size": 34046,
+   "sha256": "c548686c2f23f2855389d8db833d490b4fe4a114ab41bb6aa028559f3527f45e"
+  },
+  {
+   "name": "pew",
+   "kind": "synth",
+   "author": "hundekraft",
+   "file": "pew.op1p",
+   "size": 75272,
+   "sha256": "f36eb7f0504fd4ecc0885e2a81ea88392b8f74e07905083dafcc1354cf550e1b"
+  },
+  {
+   "name": "reactor",
+   "kind": "synth",
+   "author": "Hundekraft",
+   "file": "reactor.op1p",
+   "size": 34276,
+   "sha256": "ae57f1eacd0b39887d7d9d03bac6328b057811484495e99bebe816a287a0b631"
+  },
+  {
+   "name": "reedie",
+   "kind": "synth",
+   "author": "nvmsocool",
+   "file": "reedie.op1p",
+   "size": 5069,
+   "sha256": "35d4f87b4fe270d2eceef86e82636d52b002663fd1853c896e4af6199ed47308"
+  },
+  {
+   "name": "sid",
+   "kind": "synth",
+   "author": "Hermit (Mihaly Horvath); kennel adaptation by Hundekraft",
+   "file": "sid.op1p",
+   "size": 53181,
+   "sha256": "564d3f6423676b54557e308ecb6626e83a6493673e3541b6a483a76c0e03fdd1"
+  },
+  {
+   "name": "supersaw",
+   "kind": "synth",
+   "author": "pcppcp",
+   "file": "supersaw.op1p",
+   "size": 10593,
+   "sha256": "e68707ed97271e245b4ab2071281db704183f7817d00f5eacbfcf13f845800da"
+  },
+  {
+   "name": "taffy",
+   "kind": "synth",
+   "author": "hundekraft",
+   "file": "taffy.op1p",
+   "size": 35349,
+   "sha256": "3863818c944e2bddc48381c884e0e266aca94d4b9191a79fd4acc392b011e3bd"
+  },
+  {
+   "name": "vapora",
+   "kind": "synth",
+   "author": "AiAAAA",
+   "file": "vapora.op1p",
+   "size": 484436,
+   "sha256": "64f16b1c8c6c9aedb2c076dd23109254c9483e0d579cbf2610a80b5090508fce"
+  },
+  {
+   "name": "wavetable",
+   "kind": "synth",
+   "author": "hundekraft",
+   "file": "wavetable.op1p",
+   "size": 84753,
+   "sha256": "a3947bd1300541fc0cbce17f42e736a4ca4de7ecc873acc9fa40660cfc9a2d22"
+  },
+  {
+   "name": "windwood",
+   "kind": "synth",
+   "author": "nvmsocool",
+   "file": "windwood.op1p",
+   "size": 51733,
+   "sha256": "5661fb8e2aaf8065b03acd65bb3f85feb249dc737dd6b3cfdc13e5ac70d622fb"
+  },
+  {
+   "name": "clouds",
+   "kind": "fx",
+   "author": "pcppcp",
+   "file": "clouds.op1p",
+   "size": 47832,
+   "sha256": "9ba07a0add1b7b5e21a4ed5174575b7012c1f804d4ad6ad8c30c6b59aee8c966"
+  },
+  {
+   "name": "ente",
+   "kind": "fx",
+   "author": "pcppcp",
+   "file": "ente.op1p",
+   "size": 13292,
+   "sha256": "6f90f838fc1ddcca95dcca61fa8e201416d295edd60bf11c8471acc437dcff5d"
+  },
+  {
+   "name": "father",
+   "kind": "fx",
+   "author": "Hundekraft",
+   "file": "father.op1p",
+   "size": 33193,
+   "sha256": "0e6682a4869b8350bd155bda93db58ce5dbb6b67f665fad0f76332f5b7234ebe"
+  },
+  {
+   "name": "hail",
+   "kind": "fx",
+   "author": "hundekraft",
+   "file": "hail.op1p",
+   "size": 84055,
+   "sha256": "87a79b11eff28a3350c8fd6400870658040e5cbb99aa5ef7f475ea3cb4ecbeda"
+  },
+  {
+   "name": "in a room",
+   "kind": "fx",
+   "author": "ultralazr",
+   "file": "in_a_room.op1p",
+   "size": 24179,
+   "sha256": "c01f9b4e36bf6463d241d4e2ba8914469c9fdf11679600a7505d6e3d5a9f34dd"
+  },
+  {
+   "name": "juni_chorus",
+   "kind": "fx",
+   "author": "hundekraft",
+   "file": "juni_chorus.op1p",
+   "size": 28987,
+   "sha256": "86aaffe34b999af57fe3cc5ae32e364c28653862e331e61e36be3bfc8e0cc0b3"
+  },
+  {
+   "name": "nostromo",
+   "kind": "fx",
+   "author": "Lewis-Clayton",
+   "file": "nostromo.op1p",
+   "size": 85462,
+   "sha256": "53090f1ead93b868597a31a50a16cc0167e56e4dd8b974a02f09016e1bf59693"
+  },
+  {
+   "name": "palme",
+   "kind": "fx",
+   "author": "ultralazr",
+   "file": "palme.op1p",
+   "size": 15715,
+   "sha256": "ad6312b64a3086d60d0709c533494eaf916ba027b9894b3be3bc079aba95c570"
+  },
+  {
+   "name": "rackverb",
+   "kind": "fx",
+   "author": "Hundekraft",
+   "file": "rackverb.op1p",
+   "size": 75746,
+   "sha256": "2f35a3424a4d90a1c74482e97f3933459af3b1e37c6cb135b741b1e6b1229deb"
+  },
+  {
+   "name": "reverb",
+   "kind": "fx",
+   "author": "pcppcp",
+   "file": "reverb.op1p",
+   "size": 39345,
+   "sha256": "089d5b49bc1e6565c2d5d11e598f7a46f01648accd3d5477ef2ac8d763e54d65"
+  },
+  {
+   "name": "sister",
+   "kind": "fx",
+   "author": "Hundekraft",
+   "file": "sister.op1p",
+   "size": 50012,
+   "sha256": "7384cc093d2adf0a5f444abc94f42c97c3a87df641fb0f2115bbcdc0511115fc"
+  },
+  {
+   "name": "snowglobe",
+   "kind": "fx",
+   "author": "hundekraft",
+   "file": "snowglobe.op1p",
+   "size": 21670,
+   "sha256": "54f5ae7e1f03ee7841fa022837f39322fac19a3f5e6e3e3f8afd13297d1bca4b"
+  },
+  {
+   "name": "steve",
+   "kind": "fx",
+   "author": "pcppcp",
+   "file": "steve.op1p",
+   "size": 12884,
+   "sha256": "8f62ea2b51c3d5ab9ab4f27ef398a75cc81f553dd2aceadfcefd9a6d8e3f1507"
+  },
+  {
+   "name": "stutter",
+   "kind": "fx",
+   "author": "hundekraft",
+   "file": "stutter.op1p",
+   "size": 84051,
+   "sha256": "1ef9e6580a762d6787f4b7191f3078827d6306a20f80aaec407b780bbf62d715"
+  },
+  {
+   "name": "tape",
+   "kind": "fx",
+   "author": "pcppcp",
+   "file": "tape.op1p",
+   "size": 15391,
+   "sha256": "df46f8d5974908ccc9fb32c0caa8b696a2de3825295b40bbc7764385ca886554"
+  },
+  {
+   "name": "washer",
+   "kind": "fx",
+   "author": "hundekraft",
+   "file": "washer.op1p",
+   "size": 13030,
+   "sha256": "8fff192d6504893c1102505dd4f7735f37442a15178109e253e7cde06c1541d8"
+  },
+  {
+   "name": "chord",
+   "kind": "seq",
+   "author": "pcppcp",
+   "file": "chord.op1p",
+   "size": 16164,
+   "sha256": "47a48ec7e4a996c314688a122f6ca4a2ebbd76104a9dd3e3688052b95d3e5275"
+  },
+  {
+   "name": "dots",
+   "kind": "seq",
+   "author": "pcppcp",
+   "file": "dots.op1p",
+   "size": 30412,
+   "sha256": "3a84783758c72452967eeb054bb07e20c80df2228523502ca4923508f1044824"
+  },
+  {
+   "name": "euclid",
+   "kind": "seq",
+   "author": "pcppcp",
+   "file": "euclid.op1p",
+   "size": 23959,
+   "sha256": "cde3b527e9b6c034b97b43e97ba3d65a446926c25074d48541bf3dbdd2865f59"
+  },
+  {
+   "name": "grids",
+   "kind": "seq",
+   "author": "pcppcp",
+   "file": "grids.op1p",
+   "size": 14817,
+   "sha256": "8697b3fc9e7e4dfb240b8f8e9f66d1da286473f7b56eedbf1dee16a7aa43270b"
+  },
+  {
+   "name": "oracle",
+   "kind": "seq",
+   "author": "ultralazr",
+   "file": "oracle.op1p",
+   "size": 17575,
+   "sha256": "c527a4a6a90c66af35341dae5d319c9eadd87f6054dc3781ded0630bd4e09719"
+  },
+  {
+   "name": "peal",
+   "kind": "seq",
+   "author": "ultralazr",
+   "file": "peal.op1p",
+   "size": 14609,
+   "sha256": "9df3c75dd114a9007581d730dbe77362d10d1fe8329a98326d38a10e25d11603"
+  },
+  {
+   "name": "drumplus",
+   "kind": "drum",
+   "author": "pcppcp",
+   "file": "drumplus.op1p",
+   "size": 26263,
+   "sha256": "154d09c9933148dacf959810583a4bce11bf6f89203e254032e5a0e20b472d89"
+  },
+  {
+   "name": "perc",
+   "kind": "drum",
+   "author": "perc for op1r; PO-32 patch model after libpo32 (MIT, Eric Lewis)",
+   "file": "perc.op1p",
+   "size": 55772,
+   "sha256": "aace5cda60b06f5f5bfbaff4d5b834acfe9e8b8405c35d915af32b8490b6c247"
+  },
+  {
+   "name": "samplerplus",
+   "kind": "sampler",
+   "author": "pcppcp",
+   "file": "samplerplus.op1p",
+   "size": 31655,
+   "sha256": "3a4bca354315ba05f6e07ee03c291282d9d345fc1f976982a6dc8b0f2144bcbe"
+  },
+  {
+   "name": "randomiser",
+   "kind": "tool",
+   "author": "Lewis-Clayton",
+   "file": "randomiser.op1p",
+   "size": 8921,
+   "sha256": "221e67377c01253d6f59bb43320caeb30dd03d30ae0db801d9557ed7978b1f66"
+  }
+ ],
+ "plugin_dir_template": "content",
+ "plugin_file_template": "content/op1_factory.db",
+ "result": {
+  "tar_sha256": "057db399a84623d064c99e9cedbeac74a4dee4d1fa5aa4dbc2c4ca968ea41987",
+  "sha256": "720a488697a55c3fc7dbda4a741c9214bf1149f9593c6dccf4986f61bb701e10",
+  "size": 13909972,
+  "ident": "op1r 71"
+ }
+}

@@ -17,6 +17,16 @@ def _default_data_dir() -> Path:
     return Path.home() / ".local" / "share" / "op1-studio"
 
 
+def _default_installer_dir() -> Path:
+    env = os.environ.get("OP1_FIRMWARE_DIR")
+    if env:
+        return Path(env).expanduser()
+    companion = Path.home() / "Documents" / "git" / "op1-firmware"
+    if companion.is_dir():
+        return companion
+    return _default_data_dir() / "firmware"
+
+
 @dataclass
 class StudioConfig:
     """Paths and knobs for the proxy.
@@ -31,6 +41,7 @@ class StudioConfig:
     mount: Path | None = None
     host: str = "127.0.0.1"
     port: int = 8770
+    firmware_dir: Path = field(default_factory=_default_installer_dir)
 
     @property
     def library_dir(self) -> Path:
@@ -45,7 +56,7 @@ class StudioConfig:
         return self.data_dir / "cache"
 
     def ensure_dirs(self) -> None:
-        for p in (self.library_dir, self.backup_dir, self.cache_dir):
+        for p in (self.library_dir, self.backup_dir, self.cache_dir, self.firmware_dir):
             p.mkdir(parents=True, exist_ok=True)
 
     @classmethod

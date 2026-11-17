@@ -1,0 +1,41 @@
+op1r - custom firmware patcher for the Teenage Engineering OP-1 (firmware R246)
+Copyright (C) 2026 pcppcp
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
+version. It is distributed WITHOUT ANY WARRANTY; see the GNU General Public License (LICENSE) for details.
+
+Covered: our source code, our graphics (SVG) and our compiled code, including the code contained in the patch data
+(data/). Anyone who distributes this program or a work based on it (modified patchers, other firmware mods or
+products containing this code) must do so under the GPL and provide the complete corresponding source.
+The source code is published at https://github.com/pcppcp/op1r-src.
+
+ADDITIONAL PERMISSION (GPL-3.0 section 7)
+As an additional permission, you may combine this program, or a work based on it, with the Teenage Engineering OP-1
+firmware (original or patched) and convey the resulting combination, provided that the parts of the combination
+that are this program or based on it are conveyed under the terms of the GPL with this additional permission. The
+OP-1 firmware itself is not covered by this license.
+
+NOT COVERED by this license
+- The Teenage Engineering OP-1 firmware and any part of it, including the original firmware bytes in the patch data
+  that the patcher uses to verify its input. Copyright Teenage Engineering. This repository contains no firmware;
+  the patcher needs your own copy of the official image.
+- Oblique Strategies card texts: by Brian Eno and Peter Schmidt (list from
+  https://github.com/ultralazr/op1-oblique-strategies). Not ours and not licensed by us.
+
+THIRD-PARTY CODE (MIT or GPL-3.0, compatible with op1r's GPL-3.0-or-later; their notices are kept)
+- Fixed-point ports of Mutable Instruments Clouds and the Elements reverb: original code (c) 2014 Emilie Gillet,
+  MIT License.
+- grids (sequencer plugin): a port of Mutable Instruments Grids' pattern generator and drum map, original code
+  (c) 2011 Emilie Gillet, GPL-3.0 (AVR code of pichenettes/eurorack).
+- nostromo (FX plugin): the plate tank's topology, coefficients and output taps after the Synthstrom Deluge's
+  "Digital" reverb (src/deluge/dsp/reverb/digital.hpp), (c) 2024 Katherine Whitlock, GPL-3.0, itself after
+  J. Dattorro, "Effect Design, Part 1" (1997); fixed-point helpers from the Elements reverb port.
+- blot (synth plugin): the filter's coefficient fits, stage updates, feedback high-pass and gain follow the TB-303
+  mode of Open303's TeeBeeFilter (rosic_TeeBeeFilter), (c) 2009 Robin Schmidt (rs-met.com), MIT License.
+- iter-lab.svg and the LZMA settings of op1repacker: (c) 2016 op1hacks, MIT License
+  (https://github.com/op1hacks/op1repacker).
+- svgfont.py and the Oblique Strategies idea: (c) 2026 Martin Mairinger, MIT License
+  (https://github.com/ultralazr/op1-oblique-strategies).
+- The text in the README screenshots (docs/images) is set in Iosevka 34.9.0: (c) 2015-2026 Renzhi Li, SIL Open Font
+  License 1.1 (https://github.com/be5invis/Iosevka).
