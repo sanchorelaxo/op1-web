@@ -71,6 +71,41 @@ body[data-busy='true'] {
   background: #122019;
 }
 
+/* mode presence: the OP-1 answers as a disk, as a te-boot firmware device,
+   or (later) as a MIDI port — one green/red dot per mode, always visible */
+.pill.mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.pill.mode::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #566070;
+}
+
+.pill.mode[data-state='on'] {
+  color: #b6e3c2;
+  border-color: #2c4a37;
+  background: #122019;
+}
+
+.pill.mode[data-state='on']::before {
+  background: #35c76b;
+  box-shadow: 0 0 6px #35c76b88;
+}
+
+.pill.mode[data-state='off']::before {
+  background: #e5484d;
+}
+
+.pill.mode[data-state='unknown'] {
+  opacity: 0.55;
+}
+
 /* the one control in the bar: restarting the proxy is a click, not a terminal */
 .stage-bar button {
   pointer-events: auto;

@@ -11,7 +11,10 @@
       <canvas id="scene"></canvas>
       <div id="tooltip" class="tooltip"></div>
       <div class="stage-bar">
-        <span id="device-status" class="pill" data-on="false">checking…</span>
+        <span id="mode-disk" class="pill mode" data-state="off" title="OP-1 disk mode">disk</span>
+        <span id="mode-firmware" class="pill mode" data-state="off" title="OP-1 firmware (te-boot) mode">firmware</span>
+        <span id="mode-midi" class="pill mode" data-state="unknown" title="MIDI mode — detection coming soon">midi</span>
+        <span id="device-status" class="pill" data-on="false" hidden>checking…</span>
         <button
           id="restart"
           title="restart the local proxy so it reloads the code on disk — about a second of downtime, same port"

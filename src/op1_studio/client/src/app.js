@@ -337,6 +337,34 @@ new ResizeObserver(resize).observe(canvas);
 
 // ---------------------------------------------------------------- ui
 const statusPill = el('device-status');
+const modePills = { disk: el('mode-disk'), firmware: el('mode-firmware'), midi: el('mode-midi') };
+
+/** One presence dot per OP-1 mode: green when present, red when absent,
+    dim/unknown when this build cannot detect the mode yet (midi). */
+function setModePill(name, on, detail) {
+  const pill = modePills[name];
+  if (!pill) return;
+  pill.dataset.state = on === null || on === undefined ? 'unknown' : String(Boolean(on));
+  if (detail) pill.title = detail;
+}
+
+function renderModes(s) {
+  const fw = s.firmware || {};
+  const modes = s.modes || { disk: s.mounted, firmware: Boolean(fw.present), midi: null };
+  setModePill(
+    'disk',
+    modes.disk,
+    s.mounted ? `disk mode: ${s.label} · ${fmtBytes(s.free_bytes)} free` : 'disk mode: OP-1 not mounted',
+  );
+  setModePill(
+    'firmware',
+    modes.firmware,
+    fw.mounted
+      ? `firmware mode: ${fw.path} · ${fmtBytes(fw.free_bytes)} free${fw.auto_mounted ? ' · auto-mounted' : ''}`
+      : `firmware mode: ${fw.help || 'no te-boot device detected'}`,
+  );
+  setModePill('midi', modes.midi, 'MIDI mode — detection coming soon');
+}
 const browseGrid = el('browse-grid');
 const browseMeta = el('browse-meta');
 const devicePane = el('device-pane');
@@ -414,14 +442,18 @@ async function refreshStatus() {
     statusSnapshot = s;
     state.deviceMounted = s.mounted;
     state.hint = s.mounted ? `${s.label} · ${fmtBytes(s.free_bytes)} free` : 'no OP-1 volume';
-    statusPill.textContent = s.mounted ? `OP-1 mounted · ${fmtBytes(s.free_bytes)} free` : 'OP-1 not mounted';
-    statusPill.dataset.on = String(s.mounted);
+    renderModes(s);
+    statusPill.hidden = true;
     el('guidance').textContent = s.guidance;
     state.dirty = true;
     renderDevice(s);
   } catch (err) {
+    statusPill.hidden = false;
     statusPill.textContent = 'proxy error';
     statusPill.dataset.on = 'false';
+    setModePill('disk', null, 'disk mode: proxy unreachable');
+    setModePill('firmware', null, 'firmware mode: proxy unreachable');
+    setModePill('midi', null, 'MIDI mode: proxy unreachable');
     el('guidance').textContent = String(err);
   }
 }
@@ -773,6 +805,7 @@ async function restartBridge() {
   if (button.disabled) return;
   button.disabled = true;
   const before = await api.health().catch(() => null);
+  statusPill.hidden = false;
   statusPill.textContent = 'restarting bridge…';
   statusPill.dataset.on = 'false';
   setMessage('restarting bridge…');
@@ -789,6 +822,7 @@ async function restartBridge() {
   const back = await waitForBridge(before);
   if (!back) {
     setMessage('bridge did not come back within 15s');
+    statusPill.hidden = false;
     statusPill.textContent = 'proxy down';
     statusPill.dataset.on = 'false';
     el('guidance').textContent =
@@ -822,11 +856,13 @@ function frame() {
 resize();
 screen.draw(state);
 refreshStatus();
+// presence must not go stale: the device comes and goes without any click
+setInterval(refreshStatus, 4000);
 loadBrowse(1);
 frame();
 
 // expose for the browser console and for e2e checks
 window.op1studio = {
   state, api, scene, camera, controls, renderer, op1, enterMode, restartBridge,
-  clip, toggleClip, deleteEntry,
+  clip, toggleClip, deleteEntry, refreshStatus,
 };
