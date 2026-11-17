@@ -24,7 +24,7 @@ from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from . import aiff, device, drumkit, firmware, library, op1fun
+from . import aiff, device, drumkit, firmware, hundekraft, library, op1fun
 from .config import StudioConfig
 
 CLIENT_DIR = Path(__file__).parent / "client"
@@ -406,6 +406,14 @@ class Handler(SimpleHTTPRequestHandler):
                 return self._json(firmware.teboot_state())
             if path == "/api/firmware/changelog":
                 return self._text(firmware.changelog_text())
+            if path == "/api/firmware/hundekraft":
+                return self._json(hundekraft.summary(self.app.config))
+            if path == "/api/firmware/hundekraft/presets":
+                try:
+                    pack = hundekraft.presets_file(self.app.config, qs.get("config", [""])[0])
+                except FileNotFoundError:
+                    return self._error("no such preset pack", HTTPStatus.NOT_FOUND)
+                return self._download(pack.read_bytes(), pack.name)
             if path.startswith("/api/firmware/symbols/"):
                 version = urllib.parse.unquote(path.rsplit("/", 1)[1])
                 return self._json(firmware.symbol_map(version))
@@ -520,6 +528,19 @@ class Handler(SimpleHTTPRequestHandler):
             if path == "/api/firmware/flash":
                 return self._json(
                     firmware.flash_installer(self.app.config, body.get("installer", ""))
+                )
+            if path == "/api/firmware/hundekraft/build":
+                selection = body.get("config")
+                if not isinstance(selection, dict):
+                    raise ValueError("config must be a hundekraft selection object")
+                source = body.get("source")
+                return self._json(
+                    hundekraft.build(
+                        self.app.config,
+                        selection,
+                        source=str(source) if source else None,
+                        overwrite=bool(body.get("overwrite")),
+                    )
                 )
         except (
             device.DeviceError,
