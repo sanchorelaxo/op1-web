@@ -153,13 +153,14 @@ class TestPluginBytes:
 class TestImageMemberBytes:
     def test_member_path_validation(self, monkeypatch):
         monkeypatch.setattr(
-            firmware, "cached_image_members", lambda cfg, name: [("a/b.bin", b"x")]
+            firmware,
+            "cached_image_members",
+            lambda cfg, name: [("a/b.bin", b"x"), ("content/awa beef.raw", b"y")],
         )
         assert firmware.image_member_bytes(None, "x.op1", "a/b.bin") == b"x"
+        assert firmware.image_member_bytes(None, "x.op1", "content/awa beef.raw") == b"y"
         with pytest.raises(firmware.FirmwareError, match="member path"):
-            firmware.image_member_bytes(None, "x.op1", "../a/b.bin")
-        with pytest.raises(firmware.FirmwareError, match="member path"):
-            firmware.image_member_bytes(None, "x.op1", "a b.bin")
+            firmware.image_member_bytes(None, "x.op1", "")
         with pytest.raises(firmware.FirmwareError, match="no member"):
             firmware.image_member_bytes(None, "x.op1", "missing.bin")
 

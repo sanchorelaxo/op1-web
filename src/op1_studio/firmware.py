@@ -233,7 +233,10 @@ def image_member_listing(config: StudioConfig, name: str) -> dict:
 
 
 def image_member_bytes(config: StudioConfig, name: str, member_path: str) -> bytes:
-    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._/-]{0,120}", str(member_path)):
+    # exact-match lookup against the archive's own member list: nothing here
+    # touches the filesystem, so names with spaces (factory content like
+    # "content/awa beef.raw") are valid. Empty is the only malformed path.
+    if not str(member_path).strip():
         raise FirmwareError(f"not a readable member path: {member_path!r}")
     for candidate_path, candidate_bytes in cached_image_members(config, name):
         if candidate_path == member_path:
