@@ -410,6 +410,19 @@ class Handler(SimpleHTTPRequestHandler):
                         self.app.config, qs.get("name", [""])[0]
                     )
                 )
+            if path == "/api/firmware/member":
+                # one member's bytes: the USB SysEx update client reads the
+                # image this way; lookup is an exact match inside the archive
+                name = firmware.safe_installer_name(qs.get("name", [""])[0])
+                try:
+                    data = firmware.image_member_bytes(
+                        self.app.config, name, qs.get("path", [""])[0]
+                    )
+                except firmware.FirmwareError as exc:
+                    return self._error(str(exc), HTTPStatus.NOT_FOUND)
+                except firmware.firmware_patcher.FirmwarePatchError as exc:
+                    return self._error(f"{name}: {exc}", HTTPStatus.CONFLICT)
+                return self._download(data, Path(name).stem + "-" + Path(qs.get("path", ["x"])[0]).name)
             if path == "/api/firmware/changelog":
                 return self._text(firmware.changelog_text())
             if path == "/api/firmware/hundekraft":

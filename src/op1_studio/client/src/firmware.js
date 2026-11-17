@@ -14,6 +14,7 @@
  *   anything else     -> member listing, flash, download
  */
 import { api } from './api.js';
+import * as op1push from './op1push.js';
 
 const escapeHtml = (s) =>
   String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -59,6 +60,7 @@ export function createFirmwareWorkspace(container) {
   let note = '';
   let busy = false;
   let building = '';
+  let usbResume = {}; // op1push resume key: a second press continues an interrupted send
 
   const hkAvailable = () => Boolean(hk && (hk.images || []).some((i) => i.buildable));
 
@@ -200,11 +202,74 @@ export function createFirmwareWorkspace(container) {
       const res = await api.firmwareFlash(name);
       note =
         `copied ${res.bytes ? `${fmtBytes(res.bytes)} → ${res.device || 'te-boot'}` : JSON.stringify(res)}. ` +
-        'Pick it in the te-boot menu on the device to install. After install the first boot is a safe start: ' +
-        'it says "N plugin files not loaded" — power the OP-1 off and on once and they all load.';
+        'Pick it in the te-boot menu on the device to install. That writes the firmware only — ' +
+        'after it reboots, use "send over USB" here to install the content files.';
       await refresh();
     } catch (err) {
       note = `flash failed: ${err.message}`;
+    } finally {
+      busy = false;
+      render();
+    }
+  }
+
+  // te-boot installs the firmware partitions only, exactly like the official
+  // workshop page: the content files (plugin .knl, samples, screens) travel
+  // through the loader's USB-MIDI SysEx update once the OP-1 runs the new
+  // core. op1push.js (vendored upstream) is the host side of that protocol.
+  async function usbUpdate() {
+    if (busy || !active) return;
+    busy = true;
+    note = 'opening the OP-1 MIDI ports — allow the browser MIDI prompt';
+    render();
+    let port;
+    try {
+      port = await op1push.openWebMidi(navigator);
+    } catch (err) {
+      note = `USB update: ${err.message}`;
+      busy = false;
+      render();
+      return;
+    }
+    try {
+      const listing = (await api.firmwareMembers(active)).members;
+      const sendable = listing.filter(
+        (m) =>
+          m.path === 'OP1_vdk.ldr' ||
+          m.path.startsWith('content/') ||
+          /^plugins\/[^/.][^/]*\.(knl|op1p)$/.test(m.path),
+      );
+      if (!sendable.length) throw new Error(`${active} has no content members to send`);
+      note = `reading ${sendable.length} files from ${active}…`;
+      render();
+      const files = [];
+      for (const m of sendable) {
+        const resp = await fetch(api.firmwareMemberUrl(active, m.path));
+        if (!resp.ok) throw new Error(`${m.path}: server said ${resp.status}`);
+        files.push([m.path, new Uint8Array(await resp.arrayBuffer())]);
+      }
+      const total = files.reduce((n, [, d]) => n + d.length, 0);
+      let lastDraw = 0;
+      await op1push.push(port, files, {
+        resume: usbResume,
+        progress: (done) => {
+          const now = Date.now();
+          if (done !== total && now - lastDraw < 500) return;
+          lastDraw = now;
+          note = `USB update: ${fmtBytes(done)} of ${fmtBytes(total)} — keep the cable plugged in`;
+          render();
+        },
+        confirm: () => {
+          note = 'on the OP-1 screen: press T1 to restart and install (T2 cancels)';
+          render();
+        },
+      });
+      usbResume = {};
+      note = 'content sent — the OP-1 restarted with it installed';
+    } catch (err) {
+      note =
+        `USB update: ${err.message}` +
+        (usbResume.open ? ' — press send again to continue where it stopped' : '');
     } finally {
       busy = false;
       render();
@@ -384,6 +449,7 @@ export function createFirmwareWorkspace(container) {
       ${kind === 'unknown' ? unknownView() : ''}
       ${isBuilder ? '' : `<div class="fw-actions">
         <a class="buttonlike" href="${api.firmwareFileUrl(active)}" download>download</a>
+        ${kind === 'hundekraft' ? `<button data-action="usb-update" ${busy ? 'disabled' : ''} title="install this build's content files over the loader's USB update">send over USB</button>` : ''}
         <button class="wide danger" data-action="flash" ${busy || !active ? 'disabled' : ''}>flash te-boot</button>
       </div>`}`;
     wire();
@@ -445,6 +511,8 @@ export function createFirmwareWorkspace(container) {
     if (hkBtn) hkBtn.addEventListener('click', buildHundekraft);
     const flashBtn = container.querySelector('[data-action="flash"]');
     if (flashBtn) flashBtn.addEventListener('click', () => flash(active));
+    const usbBtn = container.querySelector('[data-action="usb-update"]');
+    if (usbBtn) usbBtn.addEventListener('click', usbUpdate);
   }
 
   /** Device-pane render hook; returns true when the workspace is showing. */

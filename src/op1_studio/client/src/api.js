@@ -54,6 +54,7 @@ export const api = {
   firmwareState: () => request('/api/firmware'),
   firmwareTeboot: () => request('/api/firmware/teboot'),
   firmwareMembers: (name) => request(`/api/firmware/members?name=${encodeURIComponent(name)}`),
+  firmwareMemberUrl: (name, path) => `/api/firmware/member?name=${encodeURIComponent(name)}&path=${encodeURIComponent(path)}`,
   firmwareFileUrl: (name) => `/api/firmware/file?name=${encodeURIComponent(name)}`,
   firmwareBuild: (installer, plugins) => post('/api/firmware/build', { installer, plugins }),
   firmwareFlash: (installer) => post('/api/firmware/flash', { installer }),
