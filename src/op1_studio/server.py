@@ -9,6 +9,7 @@ Standard library only, same as the quneo editor twin.
 """
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import mimetypes
@@ -23,7 +24,7 @@ from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from . import aiff, device, drumkit, library, op1fun
+from . import aiff, device, drumkit, firmware, library, op1fun
 from .config import StudioConfig
 
 CLIENT_DIR = Path(__file__).parent / "client"
@@ -121,7 +122,17 @@ class StudioApp:
         st = device.status(self.config.mount).to_dict()
         st["library_dir"] = str(self.config.library_dir)
         st["mount_override"] = str(self.config.mount) if self.config.mount else None
+        teboot = firmware.teboot_state()
+        st["firmware"] = teboot
+        st["modes"] = {
+            "disk": bool(st["mounted"]),
+            "firmware": bool(teboot["present"]),
+            "midi": None,
+        }
         return st
+
+    def firmware_state(self) -> dict:
+        return firmware.firmware_state(self.config)
 
     def library(self) -> dict:
         return {
@@ -286,6 +297,25 @@ class Handler(SimpleHTTPRequestHandler):
     def _error(self, message: str, status: int = 500) -> None:
         self._json({"error": message}, status)
 
+    def _text(self, text: str, status: int = 200) -> None:
+        body = text.encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _download(self, data: bytes, name: str) -> None:
+        """Send bytes as a file download; ``name`` is a safe_installer_name."""
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "application/octet-stream")
+        self.send_header("Content-Disposition", f'attachment; filename="{name}"')
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(data)
+
     def _send_audio(self, path: Path) -> None:
         """Serve a WAV with Range support so the player can seek.
 
@@ -370,6 +400,21 @@ class Handler(SimpleHTTPRequestHandler):
                 })
             if path == "/api/status":
                 return self._json(self.app.status())
+            if path == "/api/firmware":
+                return self._json(self.app.firmware_state())
+            if path == "/api/firmware/teboot":
+                return self._json(firmware.teboot_state())
+            if path == "/api/firmware/changelog":
+                return self._text(firmware.changelog_text())
+            if path.startswith("/api/firmware/symbols/"):
+                version = urllib.parse.unquote(path.rsplit("/", 1)[1])
+                return self._json(firmware.symbol_map(version))
+            if path == "/api/firmware/file":
+                name = firmware.safe_installer_name(qs.get("name", [""])[0])
+                source = self.app.config.firmware_dir / name
+                if not source.is_file():
+                    return self._error(f"no installer {name}", HTTPStatus.NOT_FOUND)
+                return self._download(source.read_bytes(), name)
             if path == "/api/library":
                 return self._json(self.app.library())
             if path == "/api/audio":
@@ -390,6 +435,8 @@ class Handler(SimpleHTTPRequestHandler):
                 if not url:
                     return self._error("url is required", HTTPStatus.BAD_REQUEST)
                 return self._json(self.app.pack(url))
+        except firmware.FirmwareError as exc:
+            return self._error(str(exc), HTTPStatus.BAD_REQUEST)
         except Exception as exc:
             return self._error(str(exc), HTTPStatus.BAD_GATEWAY)
 
@@ -445,7 +492,41 @@ class Handler(SimpleHTTPRequestHandler):
                 return self._json(self.app.eject())
             if path == "/api/restart":
                 return self._post_restart()
-        except (device.DeviceError, op1fun.Op1FunError, ValueError) as exc:
+            if path == "/api/firmware/installer":
+                raw = body.get("data_b64", "")
+                try:
+                    data = base64.b64decode(raw, validate=True)
+                except (ValueError, TypeError) as exc:
+                    raise ValueError(f"data_b64 is not valid base64: {exc}") from exc
+                return self._json(
+                    firmware.save_installer(self.app.config, body.get("name", ""), data)
+                )
+            if path == "/api/firmware/installer/delete":
+                return self._json(
+                    firmware.delete_installer(self.app.config, body.get("name", ""))
+                )
+            if path == "/api/firmware/build":
+                plugins = body.get("plugins", [])
+                if not isinstance(plugins, list):
+                    raise ValueError("plugins must be a list of .op1p names")
+                return self._json(
+                    firmware.build_custom_image(
+                        self.app.config,
+                        body.get("installer", ""),
+                        [str(p) for p in plugins],
+                        bool(body.get("overwrite")),
+                    )
+                )
+            if path == "/api/firmware/flash":
+                return self._json(
+                    firmware.flash_installer(self.app.config, body.get("installer", ""))
+                )
+        except (
+            device.DeviceError,
+            firmware.FirmwareError,
+            op1fun.Op1FunError,
+            ValueError,
+        ) as exc:
             return self._error(str(exc), HTTPStatus.BAD_REQUEST)
         except Exception as exc:
             traceback.print_exc()

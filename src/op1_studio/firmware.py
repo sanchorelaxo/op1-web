@@ -60,7 +60,10 @@ def catalog() -> dict:
 
 
 def safe_installer_name(raw_name: str) -> str:
-    name = Path(str(raw_name)).name.strip()
+    name = str(raw_name)
+    if "/" in name or "\\" in name:
+        raise FirmwareError(f"installer name must be a bare file name: {raw_name!r}")
+    name = Path(name).name.strip()
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._ ()-]*\.op1", name, re.IGNORECASE):
         raise FirmwareError(f"not a firmware installer file name: {raw_name!r}")
     return name
@@ -325,23 +328,147 @@ def is_teboot_volume(path: Path) -> bool:
 
 def teboot_state() -> dict:
     mount = find_teboot_mount()
+    devices = teboot_block_devices()
+    auto_mounted = False
+    if mount is None and any(not d["mounted"] for d in devices):
+        # detected but unmounted: the user should never reach for udisksctl
+        mount = ensure_teboot_mount()
+        auto_mounted = mount is not None
+        if mount is not None:
+            devices = teboot_block_devices()
+
     if mount is None:
-        return {
-            "present": False,
-            "path": None,
-            "free_bytes": 0,
-            "help": (
+        visible = next((d for d in devices if not d["mounted"]), None)
+        if visible:
+            help_text = (
+                f"te-boot device {visible['device']} detected but not mounted; "
+                f"if the volume does not appear, run: udisksctl mount -b {visible['device']}"
+            )
+        else:
+            help_text = (
                 "no te-boot update volume: power the OP-1 off, hold COM, power it on "
                 "and keep holding until the te-boot menu appears"
-            ),
+            )
+        return {
+            "present": bool(devices),
+            "mounted": False,
+            "path": None,
+            "free_bytes": 0,
+            "device": visible["device"] if visible else None,
+            "auto_mounted": False,
+            "help": help_text,
         }
+
     usage = shutil.disk_usage(mount)
+    device_name = next(
+        (d["device"] for d in devices if d["mountpoint"] == str(mount)),
+        devices[0]["device"] if len(devices) == 1 else None,
+    )
     return {
         "present": True,
+        "mounted": True,
         "path": str(mount),
         "free_bytes": usage.free,
+        "device": device_name,
+        "auto_mounted": auto_mounted,
         "help": TEBOOT_GUIDANCE,
     }
+
+
+# --------------------------------------------------------------------------
+# te-boot block device + auto-mount
+# --------------------------------------------------------------------------
+
+
+def _lsblk_json() -> dict:
+    """Raw ``lsblk`` JSON; the seam every te-boot device test fakes."""
+    result = subprocess.run(
+        ["lsblk", "-J", "-b", "-o", "NAME,SIZE,FSTYPE,MOUNTPOINT,MODEL"],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    return json.loads(result.stdout or "{}")
+
+
+def teboot_block_devices() -> list[dict]:
+    """Unmounted-or-mounted te-boot disks seen by the kernel.
+
+    Fingerprint: the OP-1 reports model ``OP-1 Disk``; only its RAM-disk
+    sizes qualify, so a real 4 GB disk-mode volume never matches and neither
+    does any other USB stick. A broken lsblk is simply 'no devices'.
+    """
+    try:
+        data = _lsblk_json()
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return []
+    found: list[dict] = []
+    for dev in data.get("blockdevices", []):
+        model = (dev.get("model") or "").casefold()
+        size = dev.get("size") or 0
+        if (
+            dev.get("fstype") == "vfat"
+            and "op-1" in model
+            and 0 < size < TEBOOT_MAX_TOTAL_BYTES
+        ):
+            found.append(
+                {
+                    "device": f"/dev/{dev['name']}",
+                    "size": size,
+                    "model": dev.get("model"),
+                    "mountpoint": dev.get("mountpoint"),
+                    "mounted": bool(dev.get("mountpoint")),
+                }
+            )
+    return found
+
+
+_mounter_lock = threading.Lock()
+_last_mount_attempt: dict[str, float] = {}
+MOUNT_RETRY_SECONDS = 10.0
+
+
+def _mount_block_device(device_name: str) -> None:
+    """Ask the desktop to mount one device; polkit may refuse."""
+    try:
+        subprocess.run(
+            ["udisksctl", "mount", "-b", device_name],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=20,
+        )
+    except (subprocess.SubprocessError, OSError) as exc:
+        detail = (getattr(exc, "stderr", "") or str(exc)).strip()
+        raise FirmwareError(f"could not mount {device_name}: {detail}") from exc
+
+
+def ensure_teboot_mount() -> Path | None:
+    """The te-boot volume, mounting it first when the device is only visible.
+
+    Polling this from the UI is safe: attempts per device are throttled,
+    failures never raise, and an already-mounted volume costs one scan.
+    """
+    mount = find_teboot_mount()
+    if mount is not None:
+        return mount
+    now = time.monotonic()
+    for dev in teboot_block_devices():
+        if dev["mounted"]:
+            continue
+        with _mounter_lock:
+            last = _last_mount_attempt.get(dev["device"], 0.0)
+            if now - last < MOUNT_RETRY_SECONDS:
+                continue
+            _last_mount_attempt[dev["device"]] = now
+        try:
+            _mount_block_device(dev["device"])
+        except FirmwareError:
+            continue
+        mount = find_teboot_mount()
+        if mount is not None:
+            return mount
+    return None
 
 
 def _resolve_block_device(mount: Path) -> str:
@@ -371,8 +498,13 @@ def _unmount_volume(device_name: str) -> None:
 
 
 def flash_installer(config: StudioConfig, name: str, mount: Path | None = None) -> dict:
+    """Copy one installer onto the te-boot volume, then unmount the device.
+
+    Without an explicit ``mount`` the auto-mounter runs first, so a te-boot
+    device that is detected but not yet mounted still flashes.
+    """
     source_path = installer_path(config, name)
-    target_mount = Path(mount) if mount is not None else find_teboot_mount()
+    target_mount = Path(mount) if mount is not None else ensure_teboot_mount()
     if target_mount is None:
         raise FirmwareError(
             "no te-boot update volume is mounted: hold COM while powering the OP-1 on"
