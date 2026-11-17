@@ -185,6 +185,7 @@ class TestRealBuild:
         assert presets.is_file()
         second = hundekraft.build(hk_config, full_selection())
         assert second["reused"] is True
+        assert second["presets_bytes"] == presets.stat().st_size
 
 
 class TestRoutes:

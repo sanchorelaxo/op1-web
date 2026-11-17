@@ -510,3 +510,145 @@ li.clip {
   color: #e0615a;
   opacity: 1;
 }
+
+/* ---------- firmware workspace (device pane, te-boot mode) ---------- */
+.fw-head {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 6px;
+}
+
+.fw-head select {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #151a22;
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.fw-head button {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #151a22;
+  color: var(--ink);
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.fw-teboot {
+  font-size: 11px;
+  color: var(--dim);
+  border-left: 2px solid var(--line);
+  padding: 2px 8px;
+  margin: 8px 0;
+}
+
+.fw-teboot.on {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+.fw-note {
+  font-size: 12px;
+  color: var(--accent);
+  margin: 8px 0;
+}
+
+.fw-table {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 8px 0;
+}
+
+.fw-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 0 8px;
+  padding: 6px 8px;
+  border: 1px solid #1a1f27;
+  border-radius: 7px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.fw-row.on {
+  border-color: var(--blue);
+  background: #131a24;
+}
+
+.fw-row input {
+  accent-color: var(--blue);
+}
+
+.fw-group-title {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin: 12px 0 6px;
+}
+
+.fw-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.fw-chip {
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--dim);
+  cursor: pointer;
+  user-select: none;
+}
+
+.fw-chip.on {
+  border-color: var(--accent);
+  color: var(--ink);
+  background: #1c1710;
+}
+
+.fw-chip.hidden {
+  border-style: dashed;
+  color: var(--dim);
+}
+
+.fw-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.fw-actions .wide {
+  margin-top: 0;
+}
+
+.buttonlike {
+  display: inline-block;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #151a22;
+  color: var(--ink);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.danger {
+  border-color: #5c2a24;
+  color: #f0b8b0;
+}
+
+.danger:hover {
+  background: #241512;
+}

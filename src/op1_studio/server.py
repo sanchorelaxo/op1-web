@@ -404,6 +404,12 @@ class Handler(SimpleHTTPRequestHandler):
                 return self._json(self.app.firmware_state())
             if path == "/api/firmware/teboot":
                 return self._json(firmware.teboot_state())
+            if path == "/api/firmware/members":
+                return self._json(
+                    firmware.image_member_listing(
+                        self.app.config, qs.get("name", [""])[0]
+                    )
+                )
             if path == "/api/firmware/changelog":
                 return self._text(firmware.changelog_text())
             if path == "/api/firmware/hundekraft":

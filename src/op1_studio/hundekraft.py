@@ -233,6 +233,9 @@ def build_image(config: StudioConfig, source_name: str, selection: dict,
             "config_id": selection_id,
             "variant_id": variant_id,
             "presets_name": presets_path.name if presets_path.is_file() else None,
+            "presets_bytes": (
+                presets_path.stat().st_size if presets_path.is_file() else 0
+            ),
             "reused": True,
             "seconds": 0.0,
             "report": {},

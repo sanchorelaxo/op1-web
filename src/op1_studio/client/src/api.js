@@ -50,4 +50,16 @@ export const api = {
       headers: { 'Content-Type': 'application/octet-stream' },
       body: file,
     }),
+  // --- firmware (te-boot mode) ------------------------------------------
+  firmwareState: () => request('/api/firmware'),
+  firmwareTeboot: () => request('/api/firmware/teboot'),
+  firmwareMembers: (name) => request(`/api/firmware/members?name=${encodeURIComponent(name)}`),
+  firmwareFileUrl: (name) => `/api/firmware/file?name=${encodeURIComponent(name)}`,
+  firmwareBuild: (installer, plugins) => post('/api/firmware/build', { installer, plugins }),
+  firmwareFlash: (installer) => post('/api/firmware/flash', { installer }),
+  firmwareSave: (name, dataB64) => post('/api/firmware/installer', { name, data_b64: dataB64 }),
+  firmwareDelete: (name) => post('/api/firmware/installer/delete', { name }),
+  firmwareHundekraft: () => request('/api/firmware/hundekraft'),
+  hundekraftBuild: (config, source) => post('/api/firmware/hundekraft/build', { config, source }),
+  hundekraftPresetsUrl: (configId) => `/api/firmware/hundekraft/presets?config=${encodeURIComponent(configId)}`,
 };

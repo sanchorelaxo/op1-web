@@ -11,6 +11,7 @@ import { RoomEnvironment } from '../vendor/RoomEnvironment.js';
 import { buildOp1 } from './model.js';
 import { createScreen } from './screen.js';
 import { api } from './api.js';
+import { createFirmwareWorkspace } from './firmware.js';
 import { noteName } from './layout.js';
 import { playClick, playNote } from './audio.js';
 
@@ -369,6 +370,7 @@ const browseGrid = el('browse-grid');
 const browseMeta = el('browse-meta');
 const devicePane = el('device-pane');
 const deviceSection = document.querySelector('[data-pane="device"]');
+const firmwareWorkspace = createFirmwareWorkspace(devicePane);
 
 // Anything the proxy can decode with ffmpeg goes straight to drum/user: the
 // guide wants one sound, twelve seconds, and the device files it as a kit.
@@ -471,16 +473,24 @@ function fmtBytes(n) {
 }
 
 function renderDevice(s) {
+  if (!s || !s.mounted) {
+    // drive gone: if the OP-1 answers in firmware mode, show the firmware
+    // workspace instead of the (now meaningless) file listing
+    if (firmwareWorkspace.update(s)) {
+      el('eject').hidden = true;
+      return;
+    }
+    devicePane.innerHTML = `<p class="empty">${escapeHtml(s?.guidance || 'No device.')}</p>`;
+    el('eject').hidden = true;
+    return;
+  }
+  el('eject').hidden = false;
   devicePane.innerHTML = '';
   devicePane.insertAdjacentHTML(
     'afterbegin',
     '<p class="dropzone">drop one sound here — wav, mp3, flac… up to 12 s<br>'
       + '<span class="dim">it lands in drum/user as a kit</span></p>',
   );
-  if (!s || !s.mounted) {
-    devicePane.innerHTML = `<p class="empty">${escapeHtml(s?.guidance || 'No device.')}</p>`;
-    return;
-  }
   const rows = [];
   rows.push(`<p class="path">${escapeHtml(s.path)}</p>`);
   rows.push(listBlock('synth', s.synth || []));
