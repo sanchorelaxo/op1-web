@@ -257,3 +257,26 @@ New `tests/test_firmware.py`, style of tests/test_device.py (tmp_path fixtures, 
    `curl -s localhost:8770/api/firmware | head -c 400`; POST a copy of op1_246.op1 as a new
    installer name via /api/firmware/installer and confirm it lands in the firmware dir.
 5. Browser pass is the user's: firmware tab visible, checkbox build flow, drop routing.
+
+## PROGRESS 2026-11-16 (late) — indicators + auto-mount DONE on feat/op1r-firmware-tab
+
+Commits: 379bf13 (WIP baseline), 434bd35 (routes+auto-mount+status modes),
+41786da (client pills). 151 tests green via `.venv/bin/pytest tests/ -q`
+(system python3 has no pytest — use .venv).
+
+- Section A server routes: DONE, all GET/POST /api/firmware* per plan; GET
+  maps FirmwareError→400, /api/firmware/file 404s missing installers itself.
+- Auto-mount: DONE + LIVE-VERIFIED on the real OP-1 in firmware mode
+  (model "OP-1 Disk", /dev/sda, 15728640 B, label 0021-0000). One caveat:
+  a udisisksctl mount issued within ~1 s of a manual unmount can fail EBUSY;
+  the 10 s throttle + client 4 s poll self-heals, do not retry faster.
+- /api/status now carries firmware{} + modes{disk,firmware,midi:null}.
+- Client stage bar: three pills (disk/firmware/midi) w/ green/red dots,
+  titles show path/free/auto-mounted/help; device-status pill only shows
+  for proxy errors/restart; 4 s setInterval(refreshStatus). MIDI pill is
+  data-state unknown (dim) until midi detection lands.
+- Still open from plan: section B (api.js firmware helpers — client currently
+  has no firmware-tab UI beyond the pills), the firmware tab itself (vendor
+  devupd.js + crash.js per sections A/C), installer build UI, flash flow wiring.
+- User's long-running instance on :8765 predates this code — its restart
+  button (or relaunch) picks up server.py; client files serve from repo dir.
